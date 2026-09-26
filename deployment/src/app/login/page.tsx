@@ -36,8 +36,7 @@ export default function Login() {
     {(error || sessionError) && <p className="form-error" role="alert">{error || sessionError}</p>}
     {session?.admin ? <div>
       <div role="status"><h2>Welcome, {session.admin.name}.</h2><p>You are signed in as administrator for {session.admin.company}.</p></div>
-      <p>Manage your employees and prepare their Dispatch accounts.</p>
-      <Link className="button primary" href="/admin">[ OPEN ADMIN PANEL → ]</Link>
+      <p>Employee management is coming next. CSV upload and manual employee entry are not available yet.</p>
       <button className="button" disabled={busy} onClick={logout}>{busy ? '[ SIGNING OUT… ]' : '[ SIGN OUT ]'}</button>
     </div> : <>
       {session?.demoCredentials && <p className="demo-help">Try the demo account:<br /><strong>{session.demoCredentials.email}</strong><br />Password: <strong>{session.demoCredentials.password}</strong><br />Or sign in with an account you registered in this demo.</p>}

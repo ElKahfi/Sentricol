@@ -147,7 +147,7 @@ export async function POST(request: Request) {
             verified_attempts, current_streak, best_streak, last_practiced_at)
          SELECT $1,
                 atr.tag_id,
-                LEAST(100, GREATEST(0, 50 + atr.ability_delta)),
+                LEAST(100, GREATEST(0, 10 + atr.ability_delta)),
                 5,
                 1,
                 CASE WHEN $2::boolean THEN 1 ELSE 0 END,
@@ -162,7 +162,7 @@ export async function POST(request: Request) {
            FROM attempt_tag_results atr
           WHERE atr.attempt_id = $6
          ON CONFLICT (user_id, tag_id) DO UPDATE SET
-           ability_score = LEAST(100, GREATEST(0, user_skill_profiles.ability_score + EXCLUDED.ability_score - 50)),
+           ability_score = LEAST(100, GREATEST(0, user_skill_profiles.ability_score + EXCLUDED.ability_score - 10)),
            confidence_score = LEAST(100, user_skill_profiles.confidence_score + 2),
            attempts = user_skill_profiles.attempts + 1,
            correct = user_skill_profiles.correct + EXCLUDED.correct,

@@ -88,6 +88,16 @@ export async function inviteEmployees(companyId: string, ids: unknown) {
       }
       await client.query('INSERT INTO user_progress(user_id) VALUES($1) ON CONFLICT(user_id) DO NOTHING',[user.rows[0].user_id])
       await client.query('INSERT INTO user_statistics(user_id) VALUES($1) ON CONFLICT(user_id) DO NOTHING',[user.rows[0].user_id])
+      // Give every new player a complete baseline profile. Attempts later update
+      // only the tags tested by that attempt.
+      await client.query(
+        `INSERT INTO user_skill_profiles (user_id, tag_id, ability_score)
+         SELECT $1, tag_id, 10
+         FROM tags
+         WHERE is_active = true
+         ON CONFLICT (user_id, tag_id) DO NOTHING`,
+        [user.rows[0].user_id],
+      )
     }
     return { employees: await listEmployees(companyId, client), created }
   })

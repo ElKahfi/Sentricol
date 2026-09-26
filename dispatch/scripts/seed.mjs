@@ -152,7 +152,7 @@ try {
 
   for (const [code, stats] of Object.entries(user.skillStatistics)) {
     const attempts = stats.attempts ?? 0
-    const ability = user.knowledge[code] ?? user.behavior[code] ?? stats.accuracy ?? 50
+    const ability = user.knowledge[code] ?? user.behavior[code] ?? stats.accuracy ?? 10
     await client.query(
       `INSERT INTO user_skill_profiles
          (user_id, tag_id, ability_score, confidence_score, attempts, correct, wrong,
