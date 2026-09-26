@@ -25,16 +25,16 @@ test('all authored cases have complete static metadata and measurable rubrics', 
   assert.throws(() => rules.validateCase(invalid), /intensity/)
 })
 
-test('PS preserves static 57/70 denominators; absence is zero, not ignored', () => {
+test('PS preserves static 60/70 denominators; absence is zero, not ignored', () => {
   const c = structuredClone(catalog[0])
   for (const k in c.behavior) c.behavior[k] = 0
   for (const k in c.indicators) c.indicators[k] = 0
   assert.equal(phishingScore(c), 0)
   c.behavior.authority = 1
-  assert.ok(Math.abs(phishingScore(c) - 100 * .4 * 10 / 57) < 1e-10)
+  assert.ok(Math.abs(phishingScore(c) - .4 * 10 / 60) < 1e-10)
   for (const k in c.behavior) c.behavior[k] = 1
   for (const k in c.indicators) c.indicators[k] = 1
-  assert.equal(phishingScore(c), 100)
+  assert.equal(phishingScore(c), 1)
 })
 
 test('a full first-pass course earns exactly 1000 EXP and passes every Master objective', () => {

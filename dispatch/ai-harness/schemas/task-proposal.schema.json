@@ -1,0 +1,237 @@
+{
+  "type": "object",
+  "properties": {
+    "scenarioBrief": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000
+    },
+    "decision": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000,
+      "enum": [
+        "legitimate",
+        "phishing"
+      ]
+    },
+    "behavior": {
+      "type": "object",
+      "properties": {
+        "authority": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        },
+        "urgency": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        },
+        "fear": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        },
+        "curiosity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        },
+        "rewardIncentive": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        },
+        "helpfulness": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        },
+        "familiarityImpersonation": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        }
+      },
+      "required": [
+        "authority",
+        "urgency",
+        "fear",
+        "curiosity",
+        "rewardIncentive",
+        "helpfulness",
+        "familiarityImpersonation"
+      ],
+      "additionalProperties": false
+    },
+    "indicators": {
+      "type": "object",
+      "properties": {
+        "senderIdentity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        },
+        "linkDestination": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        },
+        "attachmentSafety": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        },
+        "requestContext": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        },
+        "credentialProtection": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        },
+        "mfaSafety": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        },
+        "sensitiveDataHandling": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        },
+        "authorizationChecks": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        }
+      },
+      "required": [
+        "senderIdentity",
+        "linkDestination",
+        "attachmentSafety",
+        "requestContext",
+        "credentialProtection",
+        "mfaSafety",
+        "sensitiveDataHandling",
+        "authorizationChecks"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "scenarioBrief",
+    "decision",
+    "behavior",
+    "indicators"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,25 @@
+{
+  "version": "ps-provisional-3",
+  "behaviorShare": 0.4,
+  "knowledgeShare": 0.6,
+  "behaviorWeights": {
+    "authority": 10,
+    "urgency": 10,
+    "fear": 9,
+    "curiosity": 7,
+    "rewardIncentive": 8,
+    "helpfulness": 7,
+    "familiarityImpersonation": 9
+  },
+  "knowledgeWeights": {
+    "senderIdentity": 10,
+    "linkDestination": 10,
+    "attachmentSafety": 8,
+    "requestContext": 8,
+    "credentialProtection": 10,
+    "mfaSafety": 8,
+    "sensitiveDataHandling": 8,
+    "authorizationChecks": 8
+  },
+  "knowledgeWeightsProvisional": true
+}

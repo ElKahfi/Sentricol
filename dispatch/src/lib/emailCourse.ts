@@ -1,3 +1,4 @@
+import scoring from '../../ai-harness/scoring.json'
 // Pure, versioned course rules. The browser receives CourseView, never CourseState.
 export const SCORING_VERSION = 'email-exp-v1.1'
 export const PHASES = ['easy', 'normal', 'hard', 'master'] as const
@@ -8,14 +9,8 @@ export const ATTEMPT_PERCENT = [100, 70, 40] as const
 export const EXP_UNIT = 1_000_000
 export const PHASE_BUDGET = 250 * EXP_UNIT
 export const TARGET_EXP = 1000
-export const BEHAVIOR_WEIGHTS = {
-  authority: 10, urgency: 10, fear: 8, curiosity: 6, rewardIncentive: 8,
-  helpfulness: 6, familiarityImpersonation: 9,
-} as const
-export const PS_KNOWLEDGE_WEIGHTS = {
-  senderIdentity: 10, linkDestination: 10, attachmentSafety: 8, requestContext: 8,
-  credentialProtection: 10, mfaSafety: 8, sensitiveDataHandling: 8, authorizationChecks: 8,
-} as const
+export const BEHAVIOR_WEIGHTS = scoring.behaviorWeights
+export const PS_KNOWLEDGE_WEIGHTS = scoring.knowledgeWeights
 export const KNOWLEDGE_WEIGHTS = {
   ...PS_KNOWLEDGE_WEIGHTS, independentVerification: 10, incidentReporting: 8,
   passwordStrength: 6, passwordUniqueness: 8, dataClassification: 8, sharingPermissions: 8,
@@ -137,9 +132,9 @@ export function validateCase(c: CourseCase) {
   requireRule(typeof r.explanation === 'string' && r.explanation.length > 0 && Array.isArray(r.hints) && r.hints.every(h => typeof h === 'string'), 'Reviewed feedback is required')
 }
 export function phishingScore(c: Pick<CourseCase, 'behavior' | 'indicators'>) {
-  const b = Object.entries(BEHAVIOR_WEIGHTS).reduce((s, [tag, w]) => s + w * c.behavior[tag as Behavior], 0) / 57
-  const k = Object.entries(PS_KNOWLEDGE_WEIGHTS).reduce((s, [tag, w]) => s + w * c.indicators[tag as keyof typeof PS_KNOWLEDGE_WEIGHTS], 0) / 70
-  return 100 * (.4 * b + .6 * k)
+  const b = Object.entries(BEHAVIOR_WEIGHTS).reduce((s, [tag, w]) => s + w * c.behavior[tag as Behavior], 0) / Object.values(BEHAVIOR_WEIGHTS).reduce((a, b) => a + b, 0)
+  const k = Object.entries(PS_KNOWLEDGE_WEIGHTS).reduce((s, [tag, w]) => s + w * c.indicators[tag as keyof typeof PS_KNOWLEDGE_WEIGHTS], 0) / Object.values(PS_KNOWLEDGE_WEIGHTS).reduce((a, b) => a + b, 0)
+  return .4 * b + .6 * k
 }
 export function skillSummary(observations: Observation[], tag: Skill, phase: Phase): SkillSummary {
   const distinct = new Map<string, Observation>()
@@ -163,7 +158,7 @@ export function selectionPriority(c: CourseCase, observations: Observation[]) {
 }
 export function allocateBudget(cases: CourseCase[]) {
   requireRule(cases.length > 0, 'Cannot allocate an empty phase')
-  const weights = cases.map(c => .5 + phishingScore(c) / 100)
+  const weights = cases.map(c => .5 + phishingScore(c))
   const total = weights.reduce((a, b) => a + b, 0)
   const exact = weights.map(w => PHASE_BUDGET * w / total)
   const allocations = exact.map(Math.floor)

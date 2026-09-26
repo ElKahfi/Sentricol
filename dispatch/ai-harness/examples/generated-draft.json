@@ -1,0 +1,25 @@
+{
+  "id": "example-finance-001",
+  "senderName": "Harbor Supplies Billing",
+  "senderEmail": "billing@harbor-payments.example",
+  "recipientEmail": "finance@northstar.example",
+  "subject": "Confirm your supplier portal access today",
+  "body": "Hello Finance team,\n\nPlease confirm Northstar Example Ltd’s access before 4 PM today to avoid delaying invoice processing. Our supplier portal has moved from harbor.example to the new address below. Sign in using your work email and password.\n\nConfirm portal access: https://harbor-payments.example/login\n\nRegards,\nHarbor Supplies Billing",
+  "timestamp": "2026-07-08T09:30:00Z",
+  "links": [
+    {
+      "text": "Confirm portal access",
+      "url": "https://harbor-payments.example/login"
+    }
+  ],
+  "attachments": [],
+  "threat": "credential_harvesting",
+  "clues": {
+    "profileAnalysis": "The sender displays Harbor Supplies Billing but uses harbor-payments.example, different from the previous harbor.example domain named in the email.",
+    "linkAnalysis": "The displayed link leads to https://harbor-payments.example/login, the newly claimed portal rather than the previous domain.",
+    "fileAnalysis": "No attachments are included.",
+    "languageAnalysis": "The 4 PM deadline and warning of invoice delays apply urgency.",
+    "contextAnalysis": "The message announces a portal move while asking the Finance team to confirm company access. The email itself provides no independent confirmation of the change.",
+    "requestAnalysis": "The sender requests a work email and password on the new portal, making credential protection relevant."
+  }
+}

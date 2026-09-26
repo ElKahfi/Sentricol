@@ -1,0 +1,9 @@
+[
+  {
+    "id": "example-payment-policy-v1",
+    "companyId": "example-company",
+    "department": "Finance",
+    "title": "Example payment and invoice verification policy",
+    "text": "FICTIONAL EXAMPLE POLICY for Northstar Example Ltd: Verify any request to change supplier payment details by calling the supplier using the contact already recorded in the approved vendor directory. Do not use the phone number or portal link supplied in the change request. Follow the established approval process before changing payment details."
+  }
+]

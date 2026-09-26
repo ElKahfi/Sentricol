@@ -1,0 +1,144 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "senderName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "senderEmail": {
+      "type": "string",
+      "minLength": 1
+    },
+    "recipientEmail": {
+      "type": "string",
+      "minLength": 1
+    },
+    "subject": {
+      "type": "string",
+      "minLength": 1
+    },
+    "body": {
+      "type": "string",
+      "minLength": 1
+    },
+    "timestamp": {
+      "type": "string",
+      "minLength": 1
+    },
+    "links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "url": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "text",
+          "url"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "fileName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "fileType": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "fileName",
+          "fileType",
+          "description"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "threat": {
+      "type": "string",
+      "enum": [
+        "phishing",
+        "legitimate",
+        "malware",
+        "credential_harvesting",
+        "business_email_compromise",
+        "spam",
+        "scam"
+      ]
+    },
+    "clues": {
+      "type": "object",
+      "properties": {
+        "profileAnalysis": {
+          "type": "string",
+          "minLength": 1
+        },
+        "linkAnalysis": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fileAnalysis": {
+          "type": "string",
+          "minLength": 1
+        },
+        "languageAnalysis": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contextAnalysis": {
+          "type": "string",
+          "minLength": 1
+        },
+        "requestAnalysis": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "profileAnalysis",
+        "linkAnalysis",
+        "fileAnalysis",
+        "languageAnalysis",
+        "contextAnalysis",
+        "requestAnalysis"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "id",
+    "senderName",
+    "senderEmail",
+    "recipientEmail",
+    "subject",
+    "body",
+    "timestamp",
+    "links",
+    "attachments",
+    "threat",
+    "clues"
+  ],
+  "additionalProperties": false
+}

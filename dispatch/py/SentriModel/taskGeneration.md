@@ -113,7 +113,7 @@ Represents how convincing the generated phishing attempt should be.
 
 Range:
 
-0–10
+0–1
 
 Higher values indicate more realistic and more difficult phishing attempts.
 

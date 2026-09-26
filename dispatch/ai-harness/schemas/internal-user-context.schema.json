@@ -1,0 +1,126 @@
+{
+  "type": "object",
+  "properties": {
+    "userCode": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "companyId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "companyName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "department": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "position": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "rank": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "phase": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000,
+      "enum": [
+        "easy",
+        "normal",
+        "hard",
+        "master"
+      ]
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tag": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000,
+            "enum": [
+              "senderIdentity",
+              "linkDestination",
+              "attachmentSafety",
+              "requestContext",
+              "credentialProtection",
+              "mfaSafety",
+              "sensitiveDataHandling",
+              "authorizationChecks",
+              "authority",
+              "urgency",
+              "fear",
+              "curiosity",
+              "rewardIncentive",
+              "helpfulness",
+              "familiarityImpersonation"
+            ]
+          },
+          "ability": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "attempts": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1000000
+          }
+        },
+        "required": [
+          "tag",
+          "ability",
+          "attempts"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 50,
+      "minItems": 0
+    },
+    "recentObjectives": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2000,
+        "enum": [
+          "senderIdentity",
+          "linkDestination",
+          "attachmentSafety",
+          "requestContext",
+          "credentialProtection",
+          "mfaSafety",
+          "sensitiveDataHandling",
+          "authorizationChecks"
+        ]
+      },
+      "maxItems": 20,
+      "minItems": 0
+    }
+  },
+  "required": [
+    "userCode",
+    "companyId",
+    "companyName",
+    "department",
+    "position",
+    "rank",
+    "phase",
+    "skills",
+    "recentObjectives"
+  ],
+  "additionalProperties": false
+}

@@ -2,7 +2,7 @@
   "id": "email_hr_001",
   "type": "email",
   "difficulty": 1,
-  "phisingScore": 67,
+  "phisingScore": 0.67,
   "targetDepartment": ["HR"],
   "targetRank": ["Staff"],
   "knowledgeTags": {

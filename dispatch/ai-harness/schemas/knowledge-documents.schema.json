@@ -1,0 +1,43 @@
+{
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 100
+      },
+      "companyId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 100
+      },
+      "department": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 100
+      },
+      "title": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200
+      },
+      "text": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 12000
+      }
+    },
+    "required": [
+      "id",
+      "companyId",
+      "department",
+      "title",
+      "text"
+    ],
+    "additionalProperties": false
+  },
+  "maxItems": 500,
+  "minItems": 0
+}

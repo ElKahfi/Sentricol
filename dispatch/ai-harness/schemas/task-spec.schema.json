@@ -1,0 +1,354 @@
+{
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "enum": [
+        "sentri-harness-1"
+      ]
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "email"
+      ]
+    },
+    "phase": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000,
+      "enum": [
+        "easy",
+        "normal",
+        "hard",
+        "master"
+      ]
+    },
+    "audience": {
+      "type": "object",
+      "properties": {
+        "userCode": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "companyId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "companyName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 150
+        },
+        "department": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "position": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "rank": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        }
+      },
+      "required": [
+        "userCode",
+        "companyId",
+        "companyName",
+        "department",
+        "position",
+        "rank"
+      ],
+      "additionalProperties": false
+    },
+    "objective": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000,
+      "enum": [
+        "senderIdentity",
+        "linkDestination",
+        "attachmentSafety",
+        "requestContext",
+        "credentialProtection",
+        "mfaSafety",
+        "sensitiveDataHandling",
+        "authorizationChecks"
+      ]
+    },
+    "phishingScore": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "scoreBand": {
+      "type": "string",
+      "enum": [
+        "Very likely legitimate",
+        "Likely legitimate",
+        "Ambiguous / investigate",
+        "Likely phishing",
+        "Highly convincing phishing"
+      ]
+    },
+    "scoringVersion": {
+      "type": "string",
+      "enum": [
+        "ps-provisional-3"
+      ]
+    },
+    "scenarioBrief": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000
+    },
+    "decision": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000,
+      "enum": [
+        "legitimate",
+        "phishing"
+      ]
+    },
+    "behavior": {
+      "type": "object",
+      "properties": {
+        "authority": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        },
+        "urgency": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        },
+        "fear": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        },
+        "curiosity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        },
+        "rewardIncentive": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        },
+        "helpfulness": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        },
+        "familiarityImpersonation": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        }
+      },
+      "required": [
+        "authority",
+        "urgency",
+        "fear",
+        "curiosity",
+        "rewardIncentive",
+        "helpfulness",
+        "familiarityImpersonation"
+      ],
+      "additionalProperties": false
+    },
+    "indicators": {
+      "type": "object",
+      "properties": {
+        "senderIdentity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        },
+        "linkDestination": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        },
+        "attachmentSafety": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        },
+        "requestContext": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        },
+        "credentialProtection": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        },
+        "mfaSafety": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        },
+        "sensitiveDataHandling": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        },
+        "authorizationChecks": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        }
+      },
+      "required": [
+        "senderIdentity",
+        "linkDestination",
+        "attachmentSafety",
+        "requestContext",
+        "credentialProtection",
+        "mfaSafety",
+        "sensitiveDataHandling",
+        "authorizationChecks"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "id",
+    "type",
+    "phase",
+    "audience",
+    "objective",
+    "phishingScore",
+    "scoreBand",
+    "scoringVersion",
+    "scenarioBrief",
+    "decision",
+    "behavior",
+    "indicators"
+  ],
+  "additionalProperties": false
+}

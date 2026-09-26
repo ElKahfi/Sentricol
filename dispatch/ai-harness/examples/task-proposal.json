@@ -1,0 +1,23 @@
+{
+  "scenarioBrief": "A familiar supplier name asks a Finance analyst at Northstar Example Ltd to sign in to an unfamiliar payment portal before a deadline. The known vendor directory provides an independent comparison.",
+  "decision": "phishing",
+  "behavior": {
+    "authority": 0.25,
+    "urgency": 0.75,
+    "fear": 0,
+    "curiosity": 0,
+    "rewardIncentive": 0,
+    "helpfulness": 0,
+    "familiarityImpersonation": 0.5
+  },
+  "indicators": {
+    "senderIdentity": 0.5,
+    "linkDestination": 1,
+    "attachmentSafety": 0,
+    "requestContext": 0.5,
+    "credentialProtection": 0.75,
+    "mfaSafety": 0,
+    "sensitiveDataHandling": 0,
+    "authorizationChecks": 0.5
+  }
+}

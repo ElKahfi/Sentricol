@@ -1,0 +1,39 @@
+{
+  "scenarioBrief": "A Finance analyst receives an unexpected supplier message. Comparing the claimed sender with an independently held supplier contact provides the key identity evidence.",
+  "decision": "phishing",
+  "behavior": {
+    "authority": 0.25,
+    "urgency": 0.75,
+    "fear": 0,
+    "curiosity": 0,
+    "rewardIncentive": 0,
+    "helpfulness": 0,
+    "familiarityImpersonation": 0.5
+  },
+  "indicators": {
+    "senderIdentity": 0.5,
+    "linkDestination": 1,
+    "attachmentSafety": 0,
+    "requestContext": 0.5,
+    "credentialProtection": 0.75,
+    "mfaSafety": 0,
+    "sensitiveDataHandling": 0,
+    "authorizationChecks": 0.5
+  },
+  "schemaVersion": "sentri-harness-1",
+  "id": "example-profile-001",
+  "type": "email",
+  "phase": "easy",
+  "audience": {
+    "userCode": "usr_0001",
+    "companyId": "company_001",
+    "companyName": "Not provided",
+    "department": "Finance",
+    "position": "Financial Analyst",
+    "rank": "Not provided"
+  },
+  "objective": "senderIdentity",
+  "phishingScore": 0.3581,
+  "scoreBand": "Likely legitimate",
+  "scoringVersion": "ps-provisional-3"
+}

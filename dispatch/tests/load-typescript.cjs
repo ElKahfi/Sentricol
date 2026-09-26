@@ -18,6 +18,7 @@ module.exports = function createLoader(overrides = {}) {
       if (Object.hasOwn(overrides, name)) return overrides[name]
       if (name === 'server-only') return {}
       if (name.startsWith('@/')) return load(name.slice(2) + '.ts')
+      if (name.startsWith('.') && name.endsWith('.json')) return require(path.resolve(path.dirname(file), name))
       if (name.startsWith('.')) return load(path.resolve(path.dirname(file), name + '.ts'))
       return require(name)
     }

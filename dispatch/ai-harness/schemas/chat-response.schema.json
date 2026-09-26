@@ -1,0 +1,25 @@
+{
+  "type": "object",
+  "properties": {
+    "answer": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 12000
+    },
+    "sourceIds": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 100
+      },
+      "maxItems": 5,
+      "minItems": 0
+    }
+  },
+  "required": [
+    "answer",
+    "sourceIds"
+  ],
+  "additionalProperties": false
+}

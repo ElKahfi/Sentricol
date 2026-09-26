@@ -1,0 +1,23 @@
+[
+  {
+    "id": "sentri-sender",
+    "companyId": "*",
+    "department": "*",
+    "title": "Sender and link inspection",
+    "text": "Check the full sender address and actual link destination. A display name or HTTPS alone does not prove legitimacy. Corroborate unusual requests through a previously known contact or independently opened service."
+  },
+  {
+    "id": "sentri-secrets",
+    "companyId": "*",
+    "department": "*",
+    "title": "Credentials and MFA",
+    "text": "Keep passwords, recovery codes and one-time authentication codes private. Do not approve unexpected MFA prompts. Verify unusual account requests through a known channel."
+  },
+  {
+    "id": "sentri-requests",
+    "companyId": "*",
+    "department": "*",
+    "title": "Requests, attachments and authorization",
+    "text": "Urgency, authority and familiar branding can influence decisions but are not proof of phishing by themselves. Check the request against known work context and authorization. Treat unexpected attachments cautiously. Ask for company policy when a company-specific procedure is unknown."
+  }
+]

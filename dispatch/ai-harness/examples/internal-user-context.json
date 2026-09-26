@@ -1,0 +1,15 @@
+{
+  "userCode": "example-learner",
+  "companyId": "example-company",
+  "companyName": "Northstar Example Ltd",
+  "department": "Finance",
+  "position": "Financial Analyst",
+  "rank": "Staff",
+  "phase": "easy",
+  "skills": [
+    { "tag": "linkDestination", "ability": 25, "attempts": 8 },
+    { "tag": "senderIdentity", "ability": 70, "attempts": 10 },
+    { "tag": "urgency", "ability": 35, "attempts": 6 }
+  ],
+  "recentObjectives": ["senderIdentity"]
+}

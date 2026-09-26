@@ -177,8 +177,8 @@ CREATE TABLE cases (
     evidence_complexity INT NOT NULL DEFAULT 1 CHECK (evidence_complexity BETWEEN 1 AND 10),
     time_pressure INT NOT NULL DEFAULT 1 CHECK (time_pressure BETWEEN 1 AND 10),
 
-    phishing_score NUMERIC(5,2)
-        CHECK (phishing_score IS NULL OR phishing_score BETWEEN 0 AND 100),
+    phishing_score NUMERIC(6,4)
+        CHECK (phishing_score IS NULL OR phishing_score BETWEEN 0 AND 1),
 
     correct_decision VARCHAR(100) NOT NULL,
     answer_details JSONB NOT NULL DEFAULT '{}',

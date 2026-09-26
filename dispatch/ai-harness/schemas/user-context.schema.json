@@ -1,0 +1,2208 @@
+{
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "employeeId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "email": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "companyId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "department": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "position": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "joinedAt": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "progression": {
+      "type": "object",
+      "properties": {
+        "level": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000000
+        },
+        "experience": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000000
+        },
+        "nextLevelExp": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000000
+        }
+      },
+      "required": [
+        "level",
+        "experience",
+        "nextLevelExp"
+      ],
+      "additionalProperties": false
+    },
+    "knowledge": {
+      "type": "object",
+      "properties": {
+        "senderVerification": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "urlInspection": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "attachmentSafety": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "domainAwareness": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "spoofing": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "password": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "credentialProtection": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "mfa": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "classification": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "dataHandling": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        }
+      },
+      "required": [
+        "senderVerification",
+        "urlInspection",
+        "attachmentSafety",
+        "domainAwareness",
+        "spoofing",
+        "password",
+        "credentialProtection",
+        "mfa",
+        "classification",
+        "dataHandling"
+      ],
+      "additionalProperties": false
+    },
+    "behavior": {
+      "type": "object",
+      "properties": {
+        "authority": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "urgency": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "curiosity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "carelessness": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "helpfulness": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "overconfidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "fear": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "greed": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "trust": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "fatigue": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        }
+      },
+      "required": [
+        "authority",
+        "urgency",
+        "curiosity",
+        "carelessness",
+        "helpfulness",
+        "overconfidence",
+        "fear",
+        "greed",
+        "trust",
+        "fatigue"
+      ],
+      "additionalProperties": false
+    },
+    "skillStatistics": {
+      "type": "object",
+      "properties": {
+        "senderVerification": {
+          "type": "object",
+          "properties": {
+            "attempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "correct": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "wrong": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "accuracy": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "averageDecisionTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "averageInvestigationTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "investigationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "verificationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "perfectAttempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "currentStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "bestStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "recentHistory": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              },
+              "maxItems": 100
+            },
+            "lastPracticed": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "lastUpdated": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "attempts",
+            "correct",
+            "wrong",
+            "accuracy",
+            "averageDecisionTime",
+            "averageInvestigationTime",
+            "investigationRate",
+            "verificationRate",
+            "perfectAttempts",
+            "currentStreak",
+            "bestStreak",
+            "recentHistory",
+            "lastPracticed",
+            "lastUpdated"
+          ],
+          "additionalProperties": false
+        },
+        "urlInspection": {
+          "type": "object",
+          "properties": {
+            "attempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "correct": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "wrong": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "accuracy": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "averageDecisionTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "averageInvestigationTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "investigationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "verificationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "perfectAttempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "currentStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "bestStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "recentHistory": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              },
+              "maxItems": 100
+            },
+            "lastPracticed": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "lastUpdated": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "attempts",
+            "correct",
+            "wrong",
+            "accuracy",
+            "averageDecisionTime",
+            "averageInvestigationTime",
+            "investigationRate",
+            "verificationRate",
+            "perfectAttempts",
+            "currentStreak",
+            "bestStreak",
+            "recentHistory",
+            "lastPracticed",
+            "lastUpdated"
+          ],
+          "additionalProperties": false
+        },
+        "attachmentSafety": {
+          "type": "object",
+          "properties": {
+            "attempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "correct": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "wrong": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "accuracy": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "averageDecisionTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "averageInvestigationTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "investigationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "verificationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "perfectAttempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "currentStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "bestStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "recentHistory": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              },
+              "maxItems": 100
+            },
+            "lastPracticed": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "lastUpdated": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "attempts",
+            "correct",
+            "wrong",
+            "accuracy",
+            "averageDecisionTime",
+            "averageInvestigationTime",
+            "investigationRate",
+            "verificationRate",
+            "perfectAttempts",
+            "currentStreak",
+            "bestStreak",
+            "recentHistory",
+            "lastPracticed",
+            "lastUpdated"
+          ],
+          "additionalProperties": false
+        },
+        "domainAwareness": {
+          "type": "object",
+          "properties": {
+            "attempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "correct": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "wrong": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "accuracy": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "averageDecisionTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "averageInvestigationTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "investigationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "verificationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "perfectAttempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "currentStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "bestStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "recentHistory": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              },
+              "maxItems": 100
+            },
+            "lastPracticed": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "lastUpdated": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "attempts",
+            "correct",
+            "wrong",
+            "accuracy",
+            "averageDecisionTime",
+            "averageInvestigationTime",
+            "investigationRate",
+            "verificationRate",
+            "perfectAttempts",
+            "currentStreak",
+            "bestStreak",
+            "recentHistory",
+            "lastPracticed",
+            "lastUpdated"
+          ],
+          "additionalProperties": false
+        },
+        "spoofing": {
+          "type": "object",
+          "properties": {
+            "attempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "correct": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "wrong": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "accuracy": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "averageDecisionTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "averageInvestigationTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "investigationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "verificationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "perfectAttempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "currentStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "bestStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "recentHistory": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              },
+              "maxItems": 100
+            },
+            "lastPracticed": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "lastUpdated": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "attempts",
+            "correct",
+            "wrong",
+            "accuracy",
+            "averageDecisionTime",
+            "averageInvestigationTime",
+            "investigationRate",
+            "verificationRate",
+            "perfectAttempts",
+            "currentStreak",
+            "bestStreak",
+            "recentHistory",
+            "lastPracticed",
+            "lastUpdated"
+          ],
+          "additionalProperties": false
+        },
+        "password": {
+          "type": "object",
+          "properties": {
+            "attempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "correct": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "wrong": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "accuracy": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "averageDecisionTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "averageInvestigationTime": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "investigationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "verificationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "perfectAttempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "currentStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "bestStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "recentHistory": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              },
+              "maxItems": 100
+            },
+            "lastPracticed": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "lastUpdated": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "attempts",
+            "correct",
+            "wrong",
+            "accuracy",
+            "averageDecisionTime",
+            "averageInvestigationTime",
+            "investigationRate",
+            "verificationRate",
+            "perfectAttempts",
+            "currentStreak",
+            "bestStreak",
+            "recentHistory",
+            "lastPracticed",
+            "lastUpdated"
+          ],
+          "additionalProperties": false
+        },
+        "credentialProtection": {
+          "type": "object",
+          "properties": {
+            "attempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "correct": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "wrong": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "accuracy": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "averageDecisionTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "averageInvestigationTime": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "investigationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "verificationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "perfectAttempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "currentStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "bestStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "recentHistory": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              },
+              "maxItems": 100
+            },
+            "lastPracticed": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "lastUpdated": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "attempts",
+            "correct",
+            "wrong",
+            "accuracy",
+            "averageDecisionTime",
+            "averageInvestigationTime",
+            "investigationRate",
+            "verificationRate",
+            "perfectAttempts",
+            "currentStreak",
+            "bestStreak",
+            "recentHistory",
+            "lastPracticed",
+            "lastUpdated"
+          ],
+          "additionalProperties": false
+        },
+        "mfa": {
+          "type": "object",
+          "properties": {
+            "attempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "correct": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "wrong": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "accuracy": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "averageDecisionTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "averageInvestigationTime": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "investigationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "verificationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "perfectAttempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "currentStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "bestStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "recentHistory": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              },
+              "maxItems": 100
+            },
+            "lastPracticed": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "lastUpdated": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "attempts",
+            "correct",
+            "wrong",
+            "accuracy",
+            "averageDecisionTime",
+            "averageInvestigationTime",
+            "investigationRate",
+            "verificationRate",
+            "perfectAttempts",
+            "currentStreak",
+            "bestStreak",
+            "recentHistory",
+            "lastPracticed",
+            "lastUpdated"
+          ],
+          "additionalProperties": false
+        },
+        "classification": {
+          "type": "object",
+          "properties": {
+            "attempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "correct": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "wrong": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "accuracy": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "averageDecisionTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "averageInvestigationTime": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "investigationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "verificationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "perfectAttempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "currentStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "bestStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "recentHistory": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              },
+              "maxItems": 100
+            },
+            "lastPracticed": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "lastUpdated": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "attempts",
+            "correct",
+            "wrong",
+            "accuracy",
+            "averageDecisionTime",
+            "averageInvestigationTime",
+            "investigationRate",
+            "verificationRate",
+            "perfectAttempts",
+            "currentStreak",
+            "bestStreak",
+            "recentHistory",
+            "lastPracticed",
+            "lastUpdated"
+          ],
+          "additionalProperties": false
+        },
+        "dataHandling": {
+          "type": "object",
+          "properties": {
+            "attempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "correct": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "wrong": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "accuracy": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "averageDecisionTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "averageInvestigationTime": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "investigationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "verificationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "perfectAttempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "currentStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "bestStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "recentHistory": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              },
+              "maxItems": 100
+            },
+            "lastPracticed": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "lastUpdated": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "attempts",
+            "correct",
+            "wrong",
+            "accuracy",
+            "averageDecisionTime",
+            "averageInvestigationTime",
+            "investigationRate",
+            "verificationRate",
+            "perfectAttempts",
+            "currentStreak",
+            "bestStreak",
+            "recentHistory",
+            "lastPracticed",
+            "lastUpdated"
+          ],
+          "additionalProperties": false
+        },
+        "authority": {
+          "type": "object",
+          "properties": {
+            "attempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "correct": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "wrong": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "accuracy": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "averageDecisionTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "averageInvestigationTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "investigationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "verificationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "perfectAttempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "currentStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "bestStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "recentHistory": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              },
+              "maxItems": 100
+            },
+            "lastPracticed": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "lastUpdated": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "attempts",
+            "correct",
+            "wrong",
+            "accuracy",
+            "averageDecisionTime",
+            "averageInvestigationTime",
+            "investigationRate",
+            "verificationRate",
+            "perfectAttempts",
+            "currentStreak",
+            "bestStreak",
+            "recentHistory",
+            "lastPracticed",
+            "lastUpdated"
+          ],
+          "additionalProperties": false
+        },
+        "urgency": {
+          "type": "object",
+          "properties": {
+            "attempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "correct": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "wrong": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "accuracy": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "averageDecisionTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "averageInvestigationTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "investigationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "verificationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "perfectAttempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "currentStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "bestStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "recentHistory": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              },
+              "maxItems": 100
+            },
+            "lastPracticed": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "lastUpdated": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "attempts",
+            "correct",
+            "wrong",
+            "accuracy",
+            "averageDecisionTime",
+            "averageInvestigationTime",
+            "investigationRate",
+            "verificationRate",
+            "perfectAttempts",
+            "currentStreak",
+            "bestStreak",
+            "recentHistory",
+            "lastPracticed",
+            "lastUpdated"
+          ],
+          "additionalProperties": false
+        },
+        "curiosity": {
+          "type": "object",
+          "properties": {
+            "attempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "correct": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "wrong": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "accuracy": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "averageDecisionTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "averageInvestigationTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "investigationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "verificationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "perfectAttempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "currentStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "bestStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "recentHistory": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              },
+              "maxItems": 100
+            },
+            "lastPracticed": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "lastUpdated": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "attempts",
+            "correct",
+            "wrong",
+            "accuracy",
+            "averageDecisionTime",
+            "averageInvestigationTime",
+            "investigationRate",
+            "verificationRate",
+            "perfectAttempts",
+            "currentStreak",
+            "bestStreak",
+            "recentHistory",
+            "lastPracticed",
+            "lastUpdated"
+          ],
+          "additionalProperties": false
+        },
+        "carelessness": {
+          "type": "object",
+          "properties": {
+            "attempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "correct": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "wrong": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "accuracy": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "averageDecisionTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "averageInvestigationTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "investigationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "verificationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "perfectAttempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "currentStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "bestStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "recentHistory": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              },
+              "maxItems": 100
+            },
+            "lastPracticed": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "lastUpdated": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "attempts",
+            "correct",
+            "wrong",
+            "accuracy",
+            "averageDecisionTime",
+            "averageInvestigationTime",
+            "investigationRate",
+            "verificationRate",
+            "perfectAttempts",
+            "currentStreak",
+            "bestStreak",
+            "recentHistory",
+            "lastPracticed",
+            "lastUpdated"
+          ],
+          "additionalProperties": false
+        },
+        "helpfulness": {
+          "type": "object",
+          "properties": {
+            "attempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "correct": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "wrong": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "accuracy": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "averageDecisionTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "averageInvestigationTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "investigationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "verificationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "perfectAttempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "currentStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "bestStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "recentHistory": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              },
+              "maxItems": 100
+            },
+            "lastPracticed": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "lastUpdated": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "attempts",
+            "correct",
+            "wrong",
+            "accuracy",
+            "averageDecisionTime",
+            "averageInvestigationTime",
+            "investigationRate",
+            "verificationRate",
+            "perfectAttempts",
+            "currentStreak",
+            "bestStreak",
+            "recentHistory",
+            "lastPracticed",
+            "lastUpdated"
+          ],
+          "additionalProperties": false
+        },
+        "overconfidence": {
+          "type": "object",
+          "properties": {
+            "attempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "correct": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "wrong": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "accuracy": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "averageDecisionTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "averageInvestigationTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "investigationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "verificationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "perfectAttempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "currentStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "bestStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "recentHistory": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              },
+              "maxItems": 100
+            },
+            "lastPracticed": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "lastUpdated": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "attempts",
+            "correct",
+            "wrong",
+            "accuracy",
+            "averageDecisionTime",
+            "averageInvestigationTime",
+            "investigationRate",
+            "verificationRate",
+            "perfectAttempts",
+            "currentStreak",
+            "bestStreak",
+            "recentHistory",
+            "lastPracticed",
+            "lastUpdated"
+          ],
+          "additionalProperties": false
+        },
+        "fear": {
+          "type": "object",
+          "properties": {
+            "attempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "correct": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "wrong": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "accuracy": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "averageDecisionTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "averageInvestigationTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "investigationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "verificationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "perfectAttempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "currentStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "bestStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "recentHistory": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              },
+              "maxItems": 100
+            },
+            "lastPracticed": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "lastUpdated": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "attempts",
+            "correct",
+            "wrong",
+            "accuracy",
+            "averageDecisionTime",
+            "averageInvestigationTime",
+            "investigationRate",
+            "verificationRate",
+            "perfectAttempts",
+            "currentStreak",
+            "bestStreak",
+            "recentHistory",
+            "lastPracticed",
+            "lastUpdated"
+          ],
+          "additionalProperties": false
+        },
+        "greed": {
+          "type": "object",
+          "properties": {
+            "attempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "correct": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "wrong": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "accuracy": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "averageDecisionTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "averageInvestigationTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "investigationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "verificationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "perfectAttempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "currentStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "bestStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "recentHistory": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              },
+              "maxItems": 100
+            },
+            "lastPracticed": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "lastUpdated": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "attempts",
+            "correct",
+            "wrong",
+            "accuracy",
+            "averageDecisionTime",
+            "averageInvestigationTime",
+            "investigationRate",
+            "verificationRate",
+            "perfectAttempts",
+            "currentStreak",
+            "bestStreak",
+            "recentHistory",
+            "lastPracticed",
+            "lastUpdated"
+          ],
+          "additionalProperties": false
+        },
+        "trust": {
+          "type": "object",
+          "properties": {
+            "attempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "correct": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "wrong": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "accuracy": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "averageDecisionTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "averageInvestigationTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "investigationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "verificationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "perfectAttempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "currentStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "bestStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "recentHistory": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              },
+              "maxItems": 100
+            },
+            "lastPracticed": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "lastUpdated": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "attempts",
+            "correct",
+            "wrong",
+            "accuracy",
+            "averageDecisionTime",
+            "averageInvestigationTime",
+            "investigationRate",
+            "verificationRate",
+            "perfectAttempts",
+            "currentStreak",
+            "bestStreak",
+            "recentHistory",
+            "lastPracticed",
+            "lastUpdated"
+          ],
+          "additionalProperties": false
+        },
+        "fatigue": {
+          "type": "object",
+          "properties": {
+            "attempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "correct": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "wrong": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "accuracy": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "averageDecisionTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "averageInvestigationTime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "investigationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "verificationRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "perfectAttempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "currentStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "bestStreak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "recentHistory": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              },
+              "maxItems": 100
+            },
+            "lastPracticed": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "lastUpdated": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "attempts",
+            "correct",
+            "wrong",
+            "accuracy",
+            "averageDecisionTime",
+            "averageInvestigationTime",
+            "investigationRate",
+            "verificationRate",
+            "perfectAttempts",
+            "currentStreak",
+            "bestStreak",
+            "recentHistory",
+            "lastPracticed",
+            "lastUpdated"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "statistics": {
+      "type": "object",
+      "properties": {
+        "tasksCompleted": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000000
+        },
+        "correct": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000000
+        },
+        "wrong": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000000
+        },
+        "emailsCompleted": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000000
+        },
+        "passwordCompleted": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000000
+        },
+        "classificationCompleted": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000000
+        },
+        "avgDecisionTime": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100000000
+        },
+        "avgInvestigationTime": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100000000
+        },
+        "investigationRate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "verificationRate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "falsePositiveRate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "falseNegativeRate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "perfectTasks": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000000
+        },
+        "streak": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000000
+        },
+        "lastPlayed": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "tasksCompleted",
+        "correct",
+        "wrong",
+        "emailsCompleted",
+        "passwordCompleted",
+        "classificationCompleted",
+        "avgDecisionTime",
+        "avgInvestigationTime",
+        "investigationRate",
+        "verificationRate",
+        "falsePositiveRate",
+        "falseNegativeRate",
+        "perfectTasks",
+        "streak",
+        "lastPlayed"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "userId",
+    "employeeId",
+    "name",
+    "email",
+    "companyId",
+    "department",
+    "position",
+    "joinedAt",
+    "progression",
+    "knowledge",
+    "behavior",
+    "skillStatistics",
+    "statistics"
+  ],
+  "additionalProperties": false
+}
