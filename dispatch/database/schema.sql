@@ -269,7 +269,7 @@ CREATE TABLE user_skill_profiles (
     tag_id INT NOT NULL REFERENCES tags(tag_id),
 
     -- Current adaptive skill/vulnerability score.
-    ability_score NUMERIC(5,2) NOT NULL DEFAULT 50
+    ability_score NUMERIC(5,2) NOT NULL DEFAULT 10
         CHECK (ability_score BETWEEN 0 AND 100),
     confidence_score NUMERIC(5,2) NOT NULL DEFAULT 0
         CHECK (confidence_score BETWEEN 0 AND 100),
