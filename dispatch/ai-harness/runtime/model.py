@@ -3,6 +3,33 @@ import os
 import urllib.request
 import urllib.error
 from urllib.parse import urlparse
+from pathlib import Path
+
+
+def load_dispatch_env():
+    """Load Dispatch's .env.local for direct Python harness runs.
+
+    Existing shell variables win, so CI, tests, and explicit overrides keep
+    working. This intentionally handles the simple KEY=VALUE format used by
+    this project without adding a dotenv dependency to the harness.
+    """
+    env_file = Path(__file__).resolve().parents[2] / ".env.local"
+    if not env_file.is_file():
+        return
+    for raw_line in env_file.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        value = value.strip()
+        if value[:1] == value[-1:] and value[:1] in ("'", '"'):
+            value = value[1:-1]
+        if key:
+            os.environ.setdefault(key, value)
+
+
+load_dispatch_env()
 
 
 def generation_schema(schema):
