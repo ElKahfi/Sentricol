@@ -1,6 +1,12 @@
 node_modules/
 .next/
+.next-dev/
+.venv/
+__pycache__/
 .env*
 !.env.example
 *.tsbuildinfo
 .DS_Store
+
+# Mailbox-specific sender approvals
+protocol/config/trusted-senders.local.json

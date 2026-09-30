@@ -40,7 +40,18 @@ ai-harness/
 └── tests/              offline Python tests
 ```
 
-## Run from dispatch
+## Shared location and configuration
+
+The harness lives at the repository root, beside Deployment, Dispatch, and Protocol.
+Protocol uses `protocol.py` to analyze pasted emails through the same model client
+and validation loop. Dispatch imports the shared scoring configuration; its older
+web chatbot still uses `dispatch/py/sentri.py`.
+
+Model settings are read from `ai-harness/.env.local`. Copy `.env.example` there for
+a new installation. App or shell `OLLAMA_HOST` / `SENTRI_MODEL` values take precedence.
+Only those two settings are loaded; database and account secrets are not imported.
+
+## Run from the repository root
 
 ```sh
 python3 ai-harness/harness.py config
@@ -57,7 +68,7 @@ knowledge package. Required missing files fail explicitly.
 
 Ollama must be running for plan, generate and chat. The default model is
 `huihui_ai/qwen3-abliterated:latest`. Set `SENTRI_MODEL` or `OLLAMA_HOST` in the shell
-to override them. Environment files are not loaded automatically. `config`, `schemas`,
+to override them. `config`, `schemas`,
 `preflight` and `gate` work without a model. JSON results go to stdout; errors to stderr.
 
 ## LoopGate blueprint
@@ -122,10 +133,14 @@ control when these are revealed. Results remain drafts: realism, clue accuracy,
 indicator ratings and faithfulness to policy require content review. No automatic
 database insertion occurs.
 
-This starter runs independently of the existing `py/sentri.py` web-chat script. The
-web UI and live database are not connected to this runtime yet. Its Python functions
-can be imported from `runtime.harness.Harness` for that integration. The old TypeScript
-harness runtime and npm command have been removed; the application itself remains Next.js.
+Protocol's local web UI is connected through `protocol.py`, which reads one email
+JSON object from stdin and writes a validated assessment to stdout. It uses separate
+`email-detector` instructions and `email-analysis` schema, not training phishing scores.
+`python3 ai-harness/protocol.py status` checks the configured model. Analysis has a
+120-second total budget and up to two validation attempts. Quotes must occur exactly
+in the supplied field. Schema/evidence validation does not prove detection accuracy.
+This operation does not retrieve company documents, write email files, or log prompts.
+The existing `dispatch/py/sentri.py` web-chat script remains independent.
 
-For an existing legacy database, `database/migrations/003_phishing_score_unit.sql`
+For an existing legacy database, `dispatch/database/migrations/003_phishing_score_unit.sql`
 converts stored scores from 0–100 to 0–1 once. It has not been applied here.

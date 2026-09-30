@@ -8,6 +8,7 @@ KNOWLEDGE = {
     "email-generator": ["task-structure", "phishing-score", "behavior-tags", "knowledge-tags"],
     "one-pass-generator": ["user-profile", "task-structure", "personalization", "behavior-tags", "knowledge-tags"],
     "chatbot": ["user-profile", "task-structure"],
+    "email-detector": [],
 }
 
 def read_json(path):
@@ -25,6 +26,8 @@ def schema(name):
     return read_json(ROOT / "schemas" / (name + ".schema.json"))
 
 def instructions(operation):
+    if operation == "email-detector":
+        return (ROOT / "instructions/email-detector.md").read_text(encoding="utf-8")
     files = ["instructions/sentri-identity.md", "instructions/" + operation + ".md"]
     files += ["knowledge/" + name + ".md" for name in KNOWLEDGE[operation]]
     return "\n\n".join((ROOT / file).read_text(encoding="utf-8") for file in files)

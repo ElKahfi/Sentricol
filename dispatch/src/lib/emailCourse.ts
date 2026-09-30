@@ -1,4 +1,4 @@
-import scoring from '../../ai-harness/scoring.json'
+import scoring from '../../../ai-harness/scoring.json'
 // Pure, versioned course rules. The browser receives CourseView, never CourseState.
 export const SCORING_VERSION = 'email-exp-v1.1'
 export const PHASES = ['easy', 'normal', 'hard', 'master'] as const

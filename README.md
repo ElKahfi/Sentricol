@@ -1,53 +1,33 @@
 # SENTRI
 
-Two separate applications:
+Three independent applications and one shared AI harness:
 
 ```text
 sentri/
-├── deployment/       # Company registration and future admin panel
-└── dispatch/         # Employee training application
-    ├── package.json
-    ├── src/
-    │   ├── app/
-    │   ├── components/
-    │   └── lib/
-    ├── public/
-    ├── database/
-    ├── scripts/
-    └── tests/
+├── deployment/       # Company registration, administration, and employees
+├── dispatch/         # Employee cybersecurity training
+├── protocol/         # Email phishing analysis
+└── ai-harness/       # Shared Python model client, instructions, and validation
 ```
 
-Run the training application from `dispatch/`:
+Run each app from its folder with `pnpm install` and `pnpm dev`:
 
-```sh
-cd dispatch
-npm run dev
-```
+| App | Local address | Documentation |
+| --- | --- | --- |
+| Deployment | http://localhost:3002 | [Deployment setup](deployment/README.md) |
+| Dispatch | http://localhost:3000 | Employee training; settings in `dispatch/.env.local` |
+| Protocol | http://127.0.0.1:3003 | [Protocol setup](protocol/README.md) |
 
-Run `npm test` or `npm run build` from that same directory. Environment
-configuration belongs in `dispatch/.env.local`. Hosting the training app should
-use `dispatch` as its project root.
+Protocol connects a real Gmail account through Google OAuth. Python calls the Gmail API;
+selected messages can be analyzed by the shared Qwen harness. Configure a Google OAuth
+client before signing in. This is a loopback-only prototype with memory-only sessions;
+see the Protocol README for setup, data flow, and deployment limitations.
 
-Run the separate deployment UI with `cd deployment` and `npm run dev`.
-It uses port 3002. Registration follows Company → Admin Account → Ready.
-Registration and admin login support temporary demo accounts or the existing
-SENTRI database, controlled by `DEPLOYMENT_AUTH_MODE` in `deployment/.env.local`.
-After login, the existing login page shows the signed-in admin; employee
-management and CSV/manual entry remain future work.
-See [deployment/AUTH_DATABASE_GUIDE.md](./deployment/AUTH_DATABASE_GUIDE.md) for
-setup, mode switching, implementation details, and tests.
+The [AI harness](ai-harness/README.md) uses Python 3.10+ and the standard library. Its
+model settings are in `ai-harness/.env.local`; start with the adjacent `.env.example`.
+Protocol calls its dedicated email detector. Dispatch shares its training scoring JSON;
+Dispatch's existing web chatbot still uses its independent `py/sentri.py` entry point.
 
-## Dispatch sign-in (temporary)
-
-Open `/login` and use work email `admin` with password `123`. This is a
-single demo account connected to the existing configured demo learner, not
-company employee authentication. Signed-in browsers are remembered for 30 days.
-Settings includes a Log out button that clears this browser's session.
-
-`dispatch/.env.local` must contain `DISPATCH_SESSION_SECRET`, a random secret
-used to sign the HttpOnly session cookie. It is configured locally and must also
-be set in any hosting environment. Keep the same secret across instances and
-restarts; changing it signs out existing sessions. Never commit this secret.
-
-Before a company rollout, replace the temporary credentials with employee
-authentication, tenant authorization, and password recovery.
+Deployment and Dispatch use their own environment files and session secrets. Database
+setup and employee account provisioning are documented in the Deployment README and
+[database guide](deployment/AUTH_DATABASE_GUIDE.md). Never commit environment secrets.

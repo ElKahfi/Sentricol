@@ -6,14 +6,9 @@ from urllib.parse import urlparse
 from pathlib import Path
 
 
-def load_dispatch_env():
-    """Load Dispatch's .env.local for direct Python harness runs.
-
-    Existing shell variables win, so CI, tests, and explicit overrides keep
-    working. This intentionally handles the simple KEY=VALUE format used by
-    this project without adding a dotenv dependency to the harness.
-    """
-    env_file = Path(__file__).resolve().parents[2] / ".env.local"
+def load_harness_env():
+    """Read only model settings from the shared harness. App/shell overrides win."""
+    env_file = Path(__file__).resolve().parents[1] / ".env.local"
     if not env_file.is_file():
         return
     for raw_line in env_file.read_text(encoding="utf-8").splitlines():
@@ -25,11 +20,11 @@ def load_dispatch_env():
         value = value.strip()
         if value[:1] == value[-1:] and value[:1] in ("'", '"'):
             value = value[1:-1]
-        if key:
+        if key in {"OLLAMA_HOST", "SENTRI_MODEL"}:
             os.environ.setdefault(key, value)
 
 
-load_dispatch_env()
+load_harness_env()
 
 
 def generation_schema(schema):
@@ -46,13 +41,13 @@ def generation_schema(schema):
     return result
 
 
-def ollama(system, payload, schema, timeout):
+def ollama(system, payload, schema, timeout, max_tokens=6000):
     host = os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434").rstrip("/")
     if "://" not in host: host = "http://" + host
     if urlparse(host).scheme not in ("http", "https"): raise ValueError("Invalid Ollama host")
     data = {"model": os.environ.get("SENTRI_MODEL", "huihui_ai/qwen3-abliterated:latest"),
             "messages": [{"role": "system", "content": system}, {"role": "user", "content": json.dumps(payload)}],
-            "format": generation_schema(schema), "stream": False, "think": False, "options": {"temperature": .3, "num_predict": 6000}}
+            "format": generation_schema(schema), "stream": False, "think": False, "options": {"temperature": .3, "num_predict": max_tokens}}
     request = urllib.request.Request(host + "/api/chat", data=json.dumps(data).encode(), headers={"Content-Type": "application/json"})
     try:
         with urllib.request.urlopen(request, timeout=timeout) as response:

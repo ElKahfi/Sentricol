@@ -1,0 +1,7 @@
+{
+  "accounts": {
+    "employee@your-company.example": [
+      "approved-sender@partner.example"
+    ]
+  }
+}

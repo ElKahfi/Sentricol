@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["verdict", "summary", "findings", "recommendations"],
+  "properties": {
+    "verdict": {"type": "string", "enum": ["low-risk", "suspicious", "high-risk", "inconclusive"]},
+    "summary": {"type": "string", "minLength": 1, "maxLength": 1600},
+    "findings": {
+      "type": "array", "maxItems": 8,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["field", "quote", "explanation"],
+        "properties": {
+          "field": {"type": "string", "enum": ["sender", "replyTo", "subject", "body"]},
+          "quote": {"type": "string", "minLength": 1, "maxLength": 500},
+          "explanation": {"type": "string", "minLength": 1, "maxLength": 1000}
+        }
+      }
+    },
+    "recommendations": {"type": "array", "minItems": 1, "maxItems": 5, "items": {"type": "string", "minLength": 1, "maxLength": 600}}
+  }
+}
