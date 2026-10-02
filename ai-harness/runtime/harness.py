@@ -91,7 +91,7 @@ class Harness:
         self.start()
         return self._plan(prepare_profile(profile, organization), documents)
 
-    def generate(self, profile, documents=None, organization=None, task=None):
+    def generate(self, profile, documents=None, organization=None, task=None, with_task=False):
         self.start()
         prepared = prepare_profile(profile, organization)
         if task is None:
@@ -110,6 +110,9 @@ class Harness:
                 **prepared, 'objective': objective, 'taskId': task_id,
                 'recipientEmail': recipient_email, 'sources': sources
             }, 'one-pass', check_combined)
+            if with_task:
+                proposal = {**combined['taskProposal'], 'decision': 'legitimate' if combined['email']['threat'] == 'legitimate' else 'phishing'}
+                return {'task': self._task_from_proposal(proposal, user, objective, task_id), 'email': combined['email']}
             return combined['email']
         else:
             validate(task, schema('task-spec'))
@@ -123,9 +126,10 @@ class Harness:
                 raise ValueError('Planned task scoring differs from current scoring configuration')
         sources = retrieve(task['scenarioBrief'], prepared['user'], documents)
         recipient_email = prepared['profile']['email'] if prepared['profile'] else None
-        return self.checked('email-generator', {
+        email = self.checked('email-generator', {
             'taskSpec': task, 'recipientEmail': recipient_email, 'sources': sources
         }, 'email-content', lambda value: validate_email(value, task, recipient_email))
+        return {'task': task, 'email': email} if with_task else email
 
     def chat(self, profile, question, documents=None, organization=None, history=None):
         self.start()

@@ -44,8 +44,21 @@ ai-harness/
 
 The harness lives at the repository root, beside Deployment, Dispatch, and Protocol.
 Protocol uses `protocol.py` to analyze pasted emails through the same model client
-and validation loop. Dispatch imports the shared scoring configuration; its older
-web chatbot still uses `dispatch/py/sentri.py`.
+and validation loop. Dispatch imports the shared scoring configuration and calls
+`dispatch/py/harness_bridge.py` for its authenticated chatbot and regular email
+tasks. The bridge constructs a compact learner context from Dispatch's database;
+the browser cannot supply a company identity or skill profile. With phase
+progression disabled, email tasks use the Easy phase. Valid Easy and Normal
+emails are saved as playable cases; Hard and Master emails are stored as
+`pending_review` and cannot be assigned until reviewed. An internal reviewer can
+inspect them from the `dispatch/` directory with `pnpm review:ai list`
+and `pnpm review:ai show <case_id>`, then use `approve <case_id>` or `reject <case_id>`.
+This CLI is an operator-only prototype; it is not yet a company-admin review UI.
+Set the server-only `SENTRI_AI_PHASE` to `normal`, `hard`, or `master` to exercise
+those stages while the phase course remains disabled. If generation fails,
+Dispatch falls back to the existing approved case catalog. Password and data-classification tasks still
+come from that catalog. The chat UI displays validated replies in chunks; the
+model request itself is not token-streamed.
 
 Model settings are read from `ai-harness/.env.local`. Copy `.env.example` there for
 a new installation. App or shell `OLLAMA_HOST` / `SENTRI_MODEL` values take precedence.
