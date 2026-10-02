@@ -3,7 +3,7 @@
   "additionalProperties": false,
   "required": ["verdict", "summary", "findings", "recommendations"],
   "properties": {
-    "verdict": {"type": "string", "enum": ["low-risk", "suspicious", "high-risk", "inconclusive"]},
+    "verdict": {"type": "string", "enum": ["low-risk", "suspicious", "high-risk", "inconclusive", "spam"]},
     "summary": {"type": "string", "minLength": 1, "maxLength": 1600},
     "findings": {
       "type": "array", "maxItems": 8,

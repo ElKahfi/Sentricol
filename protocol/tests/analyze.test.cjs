@@ -22,7 +22,7 @@ test('selected Gmail message is fetched server-side before Qwen receives text', 
   const response = await POST(request({ messageId: 'abc123' }))
   assert.equal(response.status, 200)
   assert.equal(response.headers.get('cache-control'), 'no-store')
-  assert.deepEqual(await response.json(), { analysis: assessment, notes: [], skipped: false })
+  assert.deepEqual(await response.json(), { message: email, analysis: assessment, notes: [], skipped: false })
 })
 test('authentication, origin and input validation prevent model calls', async () => {
   let calls = 0
@@ -39,7 +39,9 @@ test('empty body and disconnected session never reach the AI', async () => {
   let calls = 0
   const model = async () => { calls++; return assessment }
   const empty = route(model, { '@/lib/gmail': { runGmail: async () => ({ ...email, body: '' }) } })
-  assert.equal((await empty.POST(request({ messageId: 'abc123' }))).status, 422)
+  const unreadable = await empty.POST(request({ messageId: 'abc123' }))
+  assert.equal(unreadable.status, 200)
+  assert.equal((await unreadable.json()).analysis.verdict, 'inconclusive')
   let session = { token: 'server-token' }
   const expired = route(model, { '@/lib/gmail-session': { getSession: () => session }, '@/lib/gmail': { runGmail: async () => { session = null; return email } } })
   assert.equal((await expired.POST(request({ messageId: 'abc123' }))).status, 401)
@@ -81,4 +83,29 @@ test('failed sender check still invokes detection; browser cannot supply approva
   const result = await POST(request({ messageId: 'abc123' }))
   assert.equal((await result.json()).skipped, false)
   assert.equal(calls, 1)
+})
+test('natural session expiry during long analysis keeps the completed result', async () => {
+  const session = { token: 'server-token', email: 'employee@example.test', revoked: false }
+  let lookups = 0
+  const { POST } = route(async () => { lookups++; return assessment }, {
+    '@/lib/gmail-session': { getSession: () => ++lookups <= 2 ? session : null },
+    '@/lib/gmail': { runGmail: async () => email },
+  })
+  const response = await POST(request({ messageId: 'abc123' }))
+  assert.equal(response.status, 200)
+})
+test('explicit disconnect during analysis discards the result', async () => {
+  const session = { token: 'server-token', email: 'employee@example.test', revoked: false }
+  const { POST } = route(async () => { session.revoked = true; return assessment }, {
+    '@/lib/gmail-session': { getSession: () => session },
+    '@/lib/gmail': { runGmail: async () => email },
+  })
+  assert.equal((await POST(request({ messageId: 'abc123' }))).status, 401)
+})
+test('another tab switching Gmail accounts cannot mix mailbox data in the local vault', async () => {
+  let calls = 0
+  const { POST } = route(async () => { calls++; return assessment })
+  const response = await POST(request({ messageId: 'abc123' }, { 'x-protocol-mailbox': 'someone-else@example.test' }))
+  assert.equal(response.status, 409)
+  assert.equal(calls, 0)
 })

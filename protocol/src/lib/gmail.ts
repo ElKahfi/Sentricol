@@ -1,7 +1,7 @@
 import { runPython } from './python'
 
 export type SenderCheck = { status: 'trusted' | 'scan-required'; senderAddress: string; reason: string; aiScanned: false }
-export type MailSummary = { id: string; sender: string; subject: string; date: string }
+export type MailSummary = { id: string; sender: string; subject: string; date: string; receivedAt?: number }
 export type GmailMessage = MailSummary & { replyTo: string; body: string; attachments: string[]; notes: string[]; senderCheck?: SenderCheck }
 export type Inbox = { messages: MailSummary[]; nextPageToken: string }
 

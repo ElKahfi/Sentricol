@@ -87,7 +87,7 @@ def parse_message(message, load_text=None):
     return {
         'id': message['id'], 'sender': headers.get('from', '')[:320],
         'replyTo': headers.get('reply-to', '')[:320], 'subject': headers.get('subject', '')[:500],
-        'date': headers.get('date', '')[:100], 'body': body[:20000],
+        'date': headers.get('date', '')[:100], 'receivedAt': int(message.get('internalDate', 0)), 'body': body[:20000],
         'attachments': attachments[:30], 'notes': list(dict.fromkeys(notes)),
     }
 
@@ -129,20 +129,18 @@ def execute(command, payload):
         return {'revoked': response.status_code in (200, 400)}
     gmail = service(payload['token'])
     if command == 'list':
-        page_token = payload.get('pageToken', '')
-        if not isinstance(page_token, str) or len(page_token) > 2048: raise ValueError('page')
-        page = gmail.users().messages().list(userId='me', labelIds=['INBOX'], maxResults=10, pageToken=page_token or None).execute()
+        page = gmail.users().messages().list(userId='me', labelIds=['INBOX'], maxResults=20).execute()
         entries, errors = {}, []
         def receive(request_id, response, error):
             if error: errors.append(error); return
             h = header_map(response.get('payload', {}))
-            entries[request_id] = {'id': response['id'], 'sender': h.get('from', '')[:320], 'subject': h.get('subject', '')[:500], 'date': h.get('date', '')[:100]}
+            entries[request_id] = {'id': response['id'], 'sender': h.get('from', '')[:320], 'subject': h.get('subject', '')[:500], 'date': h.get('date', '')[:100], 'receivedAt': int(response.get('internalDate', 0))}
         batch = gmail.new_batch_http_request(callback=receive)
         for item in page.get('messages', []):
             batch.add(gmail.users().messages().get(userId='me', id=item['id'], format='metadata', metadataHeaders=['From', 'Subject', 'Date']), request_id=item['id'])
         if page.get('messages'): batch.execute()
         if errors: raise errors[0]
-        return {'messages': [entries[item['id']] for item in page.get('messages', [])], 'nextPageToken': page.get('nextPageToken', '')}
+        return {'messages': sorted(entries.values(), key=lambda item: item['receivedAt'], reverse=True)[:20], 'nextPageToken': ''}
     if command == 'get':
         message_id = payload['messageId']
         if not isinstance(message_id, str) or not re.fullmatch(r'[a-zA-Z0-9_-]{1,128}', message_id): raise ValueError('message')

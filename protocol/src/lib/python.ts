@@ -4,7 +4,7 @@ export class PythonError extends Error {
   constructor(message: string, public status = 503) { super(message) }
 }
 
-export function runPython<T>(options: { executable: string; script: string; args?: string[]; input?: unknown; env: NodeJS.ProcessEnv; timeout: number; signal?: AbortSignal }): Promise<T> {
+export function runPython<T>(options: { executable: string; script: string; args?: string[]; input?: unknown; env: NodeJS.ProcessEnv; timeout?: number; signal?: AbortSignal }): Promise<T> {
   const { signal } = options
   if (signal?.aborted) return Promise.reject(new PythonError('Request cancelled.'))
   return new Promise<T>((resolve, reject) => {
@@ -20,7 +20,7 @@ export function runPython<T>(options: { executable: string; script: string; args
       else resolve(result as T)
     }
     const abort = () => finish(new PythonError('Request cancelled.'))
-    const timer = setTimeout(() => finish(new PythonError('The request timed out. Please try again.')), options.timeout)
+    const timer = options.timeout == null ? undefined : setTimeout(() => finish(new PythonError('The request timed out. Please try again.')), options.timeout)
     signal?.addEventListener('abort', abort, { once: true })
     child.stdout.setEncoding('utf8')
     child.stdout.on('data', (chunk: string) => {

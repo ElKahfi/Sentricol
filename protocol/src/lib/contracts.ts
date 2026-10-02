@@ -1,6 +1,6 @@
 export type EmailInput = { sender: string; replyTo: string; subject: string; body: string }
 export type Analysis = {
-  verdict: 'low-risk' | 'suspicious' | 'high-risk' | 'inconclusive'
+  verdict: 'low-risk' | 'suspicious' | 'high-risk' | 'inconclusive' | 'spam'
   summary: string
   findings: { field: keyof EmailInput; quote: string; explanation: string }[]
   recommendations: string[]

@@ -28,7 +28,7 @@ def main():
     except ValueError:
         print(json.dumps({"error": "The model's answer did not pass email-analysis checks. Try again or use another message."}))
     except TimeoutError:
-        print(json.dumps({"error": "Email analysis exceeded its 120-second time limit. Try a shorter message or check model speed."}))
+        print(json.dumps({"error": "The analysis stopped because an upstream service timed out. Check Ollama or the network connection."}))
     except OSError:
         print(json.dumps({"error": "The Ollama connection failed during analysis. Check that Ollama or its SSH tunnel is running."}))
     except RuntimeError:

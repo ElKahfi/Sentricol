@@ -13,6 +13,8 @@ export async function POST(request: NextRequest) {
   if (!isLocalRequest(request, true)) return NextResponse.json({ error: 'Invalid request origin.' }, { status: 403, headers })
   const session = getSession(request)
   if (!session) return NextResponse.json({ error: 'Connect your Gmail account first.' }, { status: 401, headers })
+  const mailbox = request.headers.get('x-protocol-mailbox')
+  if (mailbox && mailbox.toLowerCase() !== session.email.toLowerCase()) return NextResponse.json({ error: 'Gmail account changed in another tab. Reconnect this inbox.' }, { status: 409, headers })
   if (!request.headers.get('content-type')?.startsWith('application/json')) return NextResponse.json({ error: 'Send a JSON request.' }, { status: 415, headers })
   let messageId: string
   try {
@@ -26,15 +28,17 @@ export async function POST(request: NextRequest) {
     const message = await runGmail<GmailMessage>('get', { token: session.token, messageId, mailbox: session.email }, request.signal)
     if (getSession(request) !== session) return NextResponse.json({ error: 'Gmail session ended.' }, { status: 401, headers })
     const trusted = trustedSenderResult(message)
-    if (trusted) return NextResponse.json(trusted, { headers })
+    if (trusted) return NextResponse.json({ ...trusted, message }, { headers })
     if (busy) return NextResponse.json({ error: 'Another analysis is running. Try again shortly.' }, { status: 429, headers })
     busy = true
     claimed = true
-    if (!message.body.trim()) return NextResponse.json({ error: 'This email has no readable text to analyze.' }, { status: 422, headers })
-    const email = parseEmail({ sender: message.sender, replyTo: message.replyTo, subject: message.subject, body: message.body })
-    const analysis = await runHarness<Analysis>('analyze', email, request.signal)
-    if (getSession(request) !== session) return NextResponse.json({ error: 'Gmail session ended.' }, { status: 401, headers })
-    return NextResponse.json({ analysis, notes: message.notes, skipped: false, senderCheck: message.senderCheck }, { headers })
+    const analysis: Analysis = message.body.trim()
+      ? await runHarness<Analysis>('analyze', parseEmail({ sender: message.sender, replyTo: message.replyTo, subject: message.subject, body: message.body }), request.signal)
+      : { verdict: 'inconclusive', summary: 'Requires investigation: no readable email text was available.', findings: [], recommendations: ['Verify this message through a known, independent channel. Attachment contents have not been scanned.'] }
+    // A naturally expiring access token does not discard a completed analysis.
+    // Explicit disconnect still invalidates it.
+    if (session.revoked) return NextResponse.json({ error: 'Gmail session ended.' }, { status: 401, headers })
+    return NextResponse.json({ message, analysis, notes: message.notes, skipped: false, senderCheck: message.senderCheck }, { headers })
   } catch (error) { return gmailError(error, request) }
   finally { if (claimed) busy = false }
 }

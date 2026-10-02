@@ -42,26 +42,26 @@ def objective_for(user):
 class Harness:
     def __init__(self, model=ollama, attempts=2, timeout=300):
         if type(attempts) is not int or not 1 <= attempts <= 5: raise ValueError('Attempts must be 1–5')
-        if isinstance(timeout, bool) or not isinstance(timeout, (int, float)) or not math.isfinite(timeout) or not 0 < timeout <= 1800: raise ValueError('Timeout must be between 0 and 1800 seconds')
+        if timeout is not None and (isinstance(timeout, bool) or not isinstance(timeout, (int, float)) or not math.isfinite(timeout) or not 0 < timeout <= 1800): raise ValueError('Timeout must be None or between 0 and 1800 seconds')
         self.model, self.attempts, self.timeout = model, attempts, timeout
         self.events = []
         self.deadline = None
 
     def start(self):
         self.events = []
-        self.deadline = time.monotonic() + self.timeout
+        self.deadline = None if self.timeout is None else time.monotonic() + self.timeout
 
     def checked(self, operation, payload, contract, extra=lambda value: None):
         feedback = ''
         rule = schema(contract)
         prompt = instructions(operation)
         for attempt in range(1, self.attempts + 1):
-            remaining = self.deadline - time.monotonic()
-            if remaining <= 0: raise TimeoutError('Harness time budget exhausted')
+            remaining = None if self.deadline is None else self.deadline - time.monotonic()
+            if remaining is not None and remaining <= 0: raise TimeoutError('Harness time budget exhausted')
             try:
                 # Every attempt is a new request; durable inputs replace hidden session state.
                 value = self.model(prompt, {'input': payload, 'validationFeedback': feedback}, rule, remaining)
-                if time.monotonic() > self.deadline: raise TimeoutError('Harness time budget exhausted')
+                if self.deadline is not None and time.monotonic() > self.deadline: raise TimeoutError('Harness time budget exhausted')
                 validate(value, rule)
                 extra(value)
                 self.events.append({'operation': operation, 'attempt': attempt, 'gate': 'passed'})
