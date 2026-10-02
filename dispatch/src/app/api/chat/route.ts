@@ -9,7 +9,8 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
-  if (!await currentPlayer()) return NextResponse.json({ error: 'Please sign in again.' }, { status: 401 })
+  const player = await currentPlayer()
+if (!player) {return NextResponse.json({ error: 'Please sign in again.' },{ status: 401 },)}
   if (!validRequestOrigin(request)) return NextResponse.json({ error: 'Invalid request origin.' }, { status: 403 })
   let messages
   try {
