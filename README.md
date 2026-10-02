@@ -40,7 +40,9 @@ The sibling `SENTRI` folder is a legacy backup; make future changes here.
 See [the Docker starter guide](docker/README.md) for the private single-host
 EC2 setup: Deployment, Dispatch, Protocol, Harness, and Ollama on a g5.xlarge,
 with PostgreSQL hosted on Neon. The selected model family is **Qwen 3.0**;
-set the exact installed Ollama tag in `SENTRI_MODEL` before startup.
+the confirmed `SENTRI_MODEL` is `huihui_ai/qwen3-abliterated:latest`.
+User-provided EC2 output confirms all four containers healthy. Browser, database,
+and live AI workflows still need end-to-end testing.
 
-See [System architecture](ARCHITECTURE.md), [Changelog](CHANGELOG.md), and
-[Technical decisions](DECISIONS.md) for the current topology and recorded changes.
+See [System architecture](MD%27s%20Logs/ARCHITECTURE.md), [Changelog](MD%27s%20Logs/CHANGELOG.md), and
+[Technical decisions](MD%27s%20Logs/DECISIONS.md) for the current topology and recorded changes.

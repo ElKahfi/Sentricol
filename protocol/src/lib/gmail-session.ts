@@ -3,7 +3,7 @@ import type { NextRequest, NextResponse } from 'next/server'
 
 export const sessionCookie = 'protocol_gmail_session'
 export const flowCookie = 'protocol_gmail_flow'
-type Session = { token: string; email: string; expiresAt: number }
+type Session = { token: string; email: string; expiresAt: number; revoked: boolean }
 type Pending = { state: string; verifier: string; expiresAt: number }
 type Store = { sessions: Map<string, Session>; pending: Map<string, Pending> }
 const scope = globalThis as typeof globalThis & { protocolGmailStore?: Store }
@@ -35,7 +35,7 @@ export function createSession(token: string, email: string, expiresIn: number) {
   if (store.sessions.size >= 100) throw new Error('Too many active sessions.')
   if (!token || !email || !Number.isFinite(expiresIn) || expiresIn <= 30) throw new Error('Invalid Google session.')
   const id = random(), maxAge = Math.max(1, Math.min(expiresIn - 30, 3600))
-  store.sessions.set(id, { token, email, expiresAt: Date.now() + maxAge * 1000 })
+  store.sessions.set(id, { token, email, expiresAt: Date.now() + maxAge * 1000, revoked: false })
   return { id, maxAge }
 }
 export function getSession(request: NextRequest) {
@@ -44,7 +44,11 @@ export function getSession(request: NextRequest) {
 }
 export function deleteSession(request: NextRequest) {
   const id = request.cookies.get(sessionCookie)?.value
-  if (id) store.sessions.delete(id)
+  if (id) {
+    const session = store.sessions.get(id)
+    if (session) session.revoked = true
+    store.sessions.delete(id)
+  }
 }
 export function clearSessionCookie(response: NextResponse, baseUrl: string) {
   response.cookies.set(sessionCookie, '', cookieOptions(baseUrl, 0))

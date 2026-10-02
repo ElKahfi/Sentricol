@@ -1,6 +1,6 @@
 # SENTRI Protocol
 
-Local Gmail phishing-analysis app. Google handles login; Python calls the Gmail API. The user selects an inbox message and explicitly requests analysis by the shared Qwen harness.
+Local Gmail phishing-analysis app. Google handles login; Python calls the Gmail API. Connecting Gmail starts automatic analysis of the 20 newest Inbox messages by the shared Qwen harness.
 
 ## Google setup (first time)
 
@@ -52,17 +52,17 @@ For your forwarded EC2 Ollama service use `http://127.0.0.1:11435`. Protocol can
 
 ```text
 Browser → Protocol server → Python → Google OAuth / Gmail API
-                             ↓ selected email, only on Analyze
+                             ↓ queued email, newest first
                         Shared AI harness → configured Qwen service
 ```
 
 - Google collects the password; SENTRI receives an access token after the authorization-code exchange with state validation and PKCE.
 - Only an opaque, HttpOnly, SameSite cookie is returned to the browser. Tokens stay in server memory. No refresh token/offline access is requested. Sessions last about one hour; server restarts require reconnection.
-- Inbox listings request metadata for ten messages at a time. Opening a message fetches its body. Analyze fetches that message using the current account's token and sends its sender, reply-to, subject and extracted text to Qwen.
+- Inbox listings fetch at most 20 INBOX messages, ordered by Gmail internal received time. The browser polls every 30 seconds while open and on returning to the tab. The serial queue fetches each message using the current account token, checks sender trust, and sends unapproved messages to Qwen. The running request finishes before new arrivals are processed. Pagination is disabled for this flow.
 - Email HTML is displayed as escaped plain text. Links and external images are not fetched. Attachment names are shown; attachment contents are not analyzed. Inline text parts may be fetched through Gmail's attachment-body endpoint.
 - Analysis covers up to 20,000 body characters. Truncation and missing content are reported. Results are advisory; this does not authenticate senders, scan attachment files, or inspect destination sites.
-- The app does not persist messages, results, tokens, or prompt logs. Inbox content and results remain in browser memory until disconnect/reload. Disconnect clears the server session and attempts Google token revocation.
-- The Protocol server can access mail granted by `gmail.readonly`, and the configured AI server receives selected message text. This is **not** a guarantee that SENTRI-operated infrastructure cannot see email data. Keep both components company-controlled for that trust boundary; review infrastructure logging separately.
+- Email content, metadata, results, queue state, and alert history are encrypted in browser IndexedDB. The server does not persist messages, results, tokens, or prompt logs. Disconnect clears visible email data and the server session and attempts Google token revocation; the encrypted browser cache remains for the same account to resume later.
+- The Protocol server can access mail granted by `gmail.readonly`, and the configured AI server receives queued message text. This is **not** a guarantee that SENTRI-operated infrastructure cannot see email data. Keep both components company-controlled for that trust boundary; review infrastructure logging separately.
 
 ## Validation
 
@@ -106,19 +106,28 @@ Edit `config/trusted-senders.local.json` on the Protocol server (ignored by Git)
 
 Use actual full addresses. The list starts empty; no sender is approved automatically. Approvals apply only to the specified connected mailbox. Changes take effect on the next message fetch. `PROTOCOL_TRUSTED_SENDERS_PATH` can override the file path; malformed/missing configuration scans all messages.
 
-A message is automatically **Clear — trusted sender, not scanned** when its single From address matches an approval, Reply-to is absent or identical, it isn't labeled SPAM, and Gmail's receiver Authentication-Results report DMARC pass with the exact From domain plus an exactly aligned SPF or DKIM pass. Duplicate/ambiguous results, missing checks, and unknown senders require Qwen analysis. A clear result skips Qwen entirely, even if the model is offline.
+A message is automatically **Safe — trusted sender, not scanned** when its single From address matches an approval, Reply-to is absent or identical, it isn't labeled SPAM, and Gmail's receiver Authentication-Results report DMARC pass with the exact From domain plus an exactly aligned SPF or DKIM pass. Duplicate/ambiguous results, missing checks, and unknown senders require Qwen analysis. A clear result skips Qwen entirely, even if the model is offline.
 
-Opening a message displays the sender decision immediately. Unknown/unverified messages retain the Analyze action; no background transmission of the entire inbox is introduced. Both preview and analysis fetch sender evidence through the authenticated Gmail API. Browser-provided sender names or verdicts are not accepted.
+Processing a message checks the sender before calling Qwen. Unknown/unverified messages are analyzed automatically within the latest-20 Inbox window. Sender evidence comes from the authenticated Gmail API; browser-provided sender names or verdicts are not accepted.
 
 Trust boundary: this consumes Google's `mx.google.com` receiver results on mail retrieved directly from Gmail, following RFC 8601. It does not independently perform cryptographic authentication or establish provenance of manually imported/altered messages. Use this gate for normally received Gmail mail; authenticated compromised accounts remain possible. Clear is a policy skip, never a content-safety guarantee. Exact domain alignment is deliberately conservative: forwarding and subdomain cases can require scanning even when Gmail accepts them.
 
-## Docker / EC2 private pilot
+Email analysis has no application or Ollama request deadline in this local setup. It remains active until the model responds, the user cancels, the connection closes, or an upstream service fails. Gmail API operations and model status checks retain bounded timeouts.
 
-Use the root [Docker starter guide](../docker/README.md) in `SENTRI-fresh`.
-The image contains Node, the Gmail Python environment, and the shared Harness.
-Compose points the Harness at `http://ollama:11434`; set `SENTRI_MODEL` to the
-exact installed **Qwen 3.0** tag in the root `.env`. Google credentials are also
-supplied at runtime. Existing loopback checks stay enabled: access port 3003
-through the documented SSH tunnel and retain the loopback OAuth callback.
-Sessions remain in memory and are lost on restart. This does not enable public
-Protocol access or change the production limitations above.
+If Qwen returns an answer that fails the email evidence/format checks twice, Protocol displays **Requires investigation** (internal verdict: inconclusive) with independent verification advice. It does not treat the unvalidated answer as a phishing verdict or clear the message. Ollama connection and service failures still appear as errors.
+
+## Assessment categories
+
+Protocol shows five user-facing categories. **Safe** means an exact approved sender passed Gmail authentication checks and Qwen was skipped; it is a sender-policy result, not a content-safety guarantee. **Safe but requires investigation** maps to Qwen's `low-risk` assessment of an unapproved sender: no meaningful warning signs were found in the available text, but the sender and linked destinations remain unverified. **Requires investigation** maps to `inconclusive`, including a model answer that failed evidence checks; no safety conclusion was reached. **Risky** combines `suspicious` and `high-risk` when the model provides grounded phishing evidence. **Spam** is reserved for nuisance/bulk/promotional mail with grounded evidence and no meaningful phishing indicators. Phishing risk takes precedence over spam; the app does not infer spam merely from an unknown sender. These labels are advisory, and the current inbox only displays messages Gmail places in INBOX.
+
+
+## Local queue, encryption, and alerts
+
+- `src/lib/inbox-monitor.ts` owns the queue independently of the React view. A Web Lock allows one processing tab per mailbox; another tab waits for it to close. Requests carry the expected mailbox so a Google account switch in another tab cannot mix caches.
+- `src/lib/inbox-queue.ts` retains the latest 20 Inbox records, reuses completed results by message ID, resets interrupted work to queued, and prioritizes new messages over retries. A request already running finishes even if its email leaves the window, but its content/result is then discarded. Messages outside the refreshed window are removed from the local content cache.
+- `src/lib/local-vault.ts` uses AES-256-GCM with a fresh 96-bit IV on every save and the account hash as authenticated additional data. Each account has a non-exportable Web Crypto key persisted through IndexedDB structured cloning. Only ciphertext, IVs, hashed account identifiers, and CryptoKey objects are stored; raw message bodies, subjects, labels, and OAuth tokens are not written in plaintext.
+- This is browser-profile encryption, not a password-protected vault or end-to-end encryption against the app itself. Same-origin application code can use the key, and compromised browser/OS access remains outside this protection. Keep the app origin trusted. Clearing Protocol site data deletes both the key and cache. There is no server recovery or cross-device synchronization. Encryption failure pauses processing instead of silently storing plaintext.
+- Reload/close pauses processing; reopening and reconnecting Gmail resumes after fetching the current latest-20 window. An expired Google session pauses new work without discarding an already-running completed result. The browser must remain open to monitor, and background-tab throttling may delay checks. No Gmail Pub/Sub setup is required.
+- Service failures show Requires investigation with the failure reason, allow other messages to continue, and retry at most three times with backoff. An unreadable body or invalid model evidence produces an inconclusive result. Neither is treated as Safe.
+- Enable alert sounds once per page session using the sound button (browser audio permission requires interaction). The first Risky result from the initial batch sounds once; the visible count updates as the rest finish. Each subsequently arriving Risky email sounds once. Alert history is committed before sound playback and is encrypted alongside results. Alerts encountered while muted are not replayed later. Up to 1,000 previously alerted IDs are retained to prevent replay without retaining old email content.
+- Labels appear inside Protocol only; Gmail messages and labels are not modified. The API scope remains `gmail.readonly`.

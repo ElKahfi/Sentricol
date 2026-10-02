@@ -6,16 +6,17 @@ Deployment topology updated: 2026-10-02. Historical application review: 2026-09-
 
 The active repository is `SENTRI-fresh`. The prepared Docker pilot places
 Deployment, Dispatch, Protocol, and Ollama on one EC2 g5.xlarge, with PostgreSQL
-on Neon. The model family is **Qwen 3.0**; confirm the exact installed tag before
-startup. See the [current system architecture](../ARCHITECTURE.md) and
+on Neon. The model family is **Qwen 3.0**; the confirmed tag is `huihui_ai/qwen3-abliterated:latest`. See the [current system architecture](../MD%27s%20Logs/ARCHITECTURE.md) and
 [Docker guide](../docker/README.md).
 
 Dispatch's web chat launches `py/sentri.py` as a Python subprocess and calls
 Ollama through `http://ollama:11434`. Dispatch imports the shared Harness scoring
 JSON. Protocol separately launches the shared Harness detector. Those Python
 processes live inside app containers; the Harness is not a standalone HTTP API.
-App ports are loopback-bound for SSH-tunnel access; Ollama is private. Builds and
-live EC2 validation are pending.
+App ports are loopback-bound for SSH-tunnel access; Ollama is private. EC2 builds succeeded and all containers report healthy. Browser workflows,
+Neon operations, and live model inference remain unverified. The browser renders
+web assets/API responses received through the tunnel; server processing stays on
+EC2. Incoming local merge changes are not assumed deployed.
 
 ## Historical application review — 2026-09-08
 

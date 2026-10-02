@@ -9,7 +9,8 @@ and Dispatch imports its scoring file; it is not a separate HTTP service.
 
 Always work in `/Users/elkahfi/Desktop/Sentricol/SENTRI-fresh`. The sibling
 `SENTRI` copy is a legacy backup. The confirmed model family is **Qwen 3.0**,
-not Qwen 3.5; use `ollama list` to identify the exact installed size/tag.
+with confirmed tag `huihui_ai/qwen3-abliterated:latest` (about 5 GB downloaded).
+Parameter count and quantization remain unspecified.
 
 ## Scope
 
@@ -137,3 +138,19 @@ those services. Set `DEPLOYMENT_ORIGIN` to its exact HTTPS origin. Keep Ollama
 private. Protocol remains tunnel-only until its localhost-only access policy is
 explicitly adapted and tested. Restrict EC2 SSH access to your administrative IP.
 Use a Neon branch for deployment validation if production data should not be touched.
+
+## Verified EC2 progress — 2026-10-02
+
+User-provided output confirms successful app image builds, all four containers
+healthy, NVIDIA A10G visibility from a test container, and the configured model
+installed in the Docker volume. `protocol.py status` returns ready. End-to-end
+browser, Neon, Gmail, and model inference tests remain pending. Keep using `sudo docker compose` if the EC2 account lacks Docker socket permissions. Use both Compose files for GPU-host startup/recreation.
+
+The browser renders assets and API results returned by EC2. `localhost` URLs are
+SSH tunnel entrances on the Mac; the app servers and model run on EC2. Closing
+the tunnel does not shut down the containers. See the
+[system architecture](../MD%27s%20Logs/ARCHITECTURE.md) for the request flow.
+
+The active local workspace has an unfinished merge. Resolve it and validate the
+incoming changes before syncing/rebuilding; running images contain the earlier
+successful build, not automatic updates from your local files.

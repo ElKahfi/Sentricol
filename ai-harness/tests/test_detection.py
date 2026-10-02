@@ -58,6 +58,13 @@ class DetectionTests(unittest.TestCase):
         result = {"verdict": "low-risk", "summary": "No clear warning signs.", "findings": [], "recommendations": ["Verify any unexpected requests independently."]}
         self.assertEqual(analyze_email({"body": "Meeting moved to 3 PM."}, Harness(lambda *args: result)), result)
 
+    def test_spam_requires_grounded_evidence(self):
+        email = {"body": "Unsolicited weekly sale bulletin. Unsubscribe anytime."}
+        spam = {"verdict": "spam", "summary": "Promotional mail.", "findings": [{"field": "body", "quote": "weekly sale bulletin", "explanation": "Promotional content."}], "recommendations": ["Ignore or use Gmail's spam controls."]}
+        self.assertEqual(analyze_email(email, Harness(lambda *args: spam)), spam)
+        with self.assertRaises(ValueError):
+            analyze_email(email, Harness(lambda *args: {**spam, "findings": []}))
+
     def test_plain_text_is_preserved_not_executed(self):
         self.assertEqual(prepare_email({"body": '<script>alert(1)</script>'})['body'], '<script>alert(1)</script>')
 
@@ -70,3 +77,34 @@ class DetectorRuntimeTests(unittest.TestCase):
             result = analyze_email({'sender': 'sender@example.test', 'body': 'Meeting at 3 PM.'})
         self.assertEqual(result['recommendations'], ['Verify unexpected requests through a known, independent channel.'])
         self.assertEqual(model.call_args.kwargs['max_tokens'], 1200)
+
+class UnboundedDetectorTests(unittest.TestCase):
+    def test_default_email_detector_has_no_deadline(self):
+        from unittest.mock import patch
+        from runtime.detection import analyze_email
+        result = {'verdict': 'low-risk', 'summary': 'Routine email.', 'findings': [], 'recommendations': ['Verify if unexpected.']}
+        with patch('runtime.detection.ollama', return_value=result) as model:
+            self.assertEqual(analyze_email({'body': 'Meeting at 3 PM.'}), result)
+        self.assertIsNone(model.call_args.args[3])
+
+class ValidationFallbackTests(unittest.TestCase):
+    def test_repeated_invalid_model_output_is_explicitly_inconclusive(self):
+        from unittest.mock import patch
+        from runtime.detection import analyze_email
+        bad = {'verdict': 'high-risk', 'summary': 'Danger.', 'findings': [{'field': 'body', 'quote': 'fabricated quote', 'explanation': 'Claim.'}], 'recommendations': ['Verify.']}
+        with patch('runtime.detection.ollama', return_value=bad) as model:
+            result = analyze_email({'body': 'Ordinary project update.'})
+        self.assertEqual(model.call_count, 2)
+        self.assertEqual(result['verdict'], 'inconclusive')
+        self.assertEqual(result['findings'], [])
+        self.assertIn('No safety judgment', result['summary'])
+    def test_unavailable_model_still_fails_instead_of_appearing_analyzed(self):
+        from unittest.mock import patch
+        from runtime.detection import analyze_email
+        with patch('runtime.detection.ollama', side_effect=OSError('offline')):
+            with self.assertRaises(OSError):
+                analyze_email({'body': 'Ordinary project update.'})
+    def test_invalid_input_still_fails_before_fallback(self):
+        from runtime.detection import analyze_email
+        with self.assertRaises(ValueError):
+            analyze_email({'body': ''})

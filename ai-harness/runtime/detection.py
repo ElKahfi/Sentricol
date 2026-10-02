@@ -21,7 +21,8 @@ def prepare_email(value):
 
 def analyze_email(value, harness=None):
     email = prepare_email(value)
-    if harness is None:
+    use_default_harness = harness is None
+    if use_default_harness:
         def detector_model(system, payload, schema, timeout):
             result = ollama(system, payload, schema, timeout, max_tokens=1200)
             # The compact generation grammar omits minItems; add a safe default
@@ -29,14 +30,29 @@ def analyze_email(value, harness=None):
             if isinstance(result, dict) and result.get("recommendations") == []:
                 result["recommendations"] = ["Verify unexpected requests through a known, independent channel."]
             return result
-        harness = Harness(model=detector_model, attempts=2, timeout=120)
+        harness = Harness(model=detector_model, attempts=2, timeout=None)
     harness.start()
 
     def check_evidence(result):
-        if result["verdict"] in ("suspicious", "high-risk") and not result["findings"]:
-            raise ValueError("A suspicious or high-risk verdict requires evidence")
+        if result["verdict"] in ("suspicious", "high-risk", "spam") and not result["findings"]:
+            raise ValueError("A suspicious, high-risk, or spam verdict requires evidence")
         for finding in result["findings"]:
             if finding["quote"] not in email[finding["field"]]:
                 raise ValueError("Each evidence quote must occur exactly in its email field")
 
-    return harness.checked("email-detector", {"email": email}, "email-analysis", check_evidence)
+    try:
+        return harness.checked("email-detector", {"email": email}, "email-analysis", check_evidence)
+    except ValueError as error:
+        if not use_default_harness or not str(error).startswith("Generation failed validation after"):
+            raise
+        # Never pass through an unsupported verdict, fabricated quote, or broken
+        # JSON. Give the user a usable but explicitly undecided result instead.
+        return {
+            "verdict": "inconclusive",
+            "summary": "Requires investigation: the AI response did not pass evidence checks. This email remains unverified. No safety judgment was made.",
+            "findings": [],
+            "recommendations": [
+                "Do not act on unexpected requests until you verify them through a known, independent channel.",
+                "If this message concerns access, money, or sensitive data, contact your security team directly."
+            ],
+        }

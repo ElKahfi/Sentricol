@@ -1,0 +1,70 @@
+const test = require('node:test')
+const assert = require('node:assert/strict')
+const load = require('./load-typescript.cjs')()
+const { emptyQueue, mergeInbox, nextEntry, finishEntry, resumeQueue, categoryFor } = load('lib/inbox-queue.ts')
+const { seal, unseal } = load('lib/local-vault.ts')
+const mail = n => ({ id: String(n), receivedAt: n, sender: 'sender@example.test', subject: 'Private subject', date: '' })
+const result = (n, verdict = 'high-risk') => ({ message: { ...mail(n), body: 'Private body', replyTo: '', attachments: [], notes: [] }, analysis: { verdict, summary: 'Result', findings: [], recommendations: [] }, skipped: false })
+test('queue keeps only 20 newest emails and prioritizes new arrivals without replacing active work', () => {
+  let queue = mergeInbox(emptyQueue(), Array.from({ length: 25 }, (_, i) => mail(i)))
+  assert.equal(queue.entries.length, 20)
+  assert.equal(nextEntry(queue).summary.id, '24')
+  queue.entries[0].state = 'processing'
+  queue = mergeInbox(queue, [mail(26), ...queue.entries.map(item => item.summary)])
+  assert.equal(queue.entries.find(item => item.summary.id === '24').state, 'processing')
+  assert.equal(nextEntry(queue).summary.id, '26')
+  assert.equal(queue.entries.at(-1).summary.id, '6')
+})
+test('completed results survive a refresh; interrupted work resumes; results outside the window are discarded', () => {
+  let queue = mergeInbox(emptyQueue(), [mail(2), mail(1)])
+  finishEntry(queue, '2', result(2, 'low-risk'))
+  queue.entries[1].state = 'processing'
+  queue = resumeQueue(JSON.parse(JSON.stringify(queue)))
+  assert.equal(nextEntry(queue).summary.id, '1')
+  queue = mergeInbox(queue, [mail(3), mail(2)])
+  assert.equal(queue.entries[1].category, 'review')
+  assert.equal(finishEntry(queue, '1', result(1)), false)
+  assert.equal(queue.entries.some(item => item.summary.id === '1'), false)
+})
+test('one initial risk alert, one per new risky message, none replay after reload or rescan', () => {
+  let queue = mergeInbox(emptyQueue(), [mail(2), mail(1)])
+  assert.equal(finishEntry(queue, '2', result(2)), true)
+  assert.equal(finishEntry(queue, '1', result(1)), false)
+  queue = resumeQueue(JSON.parse(JSON.stringify(queue)))
+  assert.equal(finishEntry(queue, '2', result(2)), false)
+  queue = mergeInbox(queue, [mail(4), mail(3), mail(2), mail(1)])
+  assert.equal(finishEntry(queue, '3', result(3)), true)
+  assert.equal(finishEntry(queue, '4', result(4, 'spam')), false)
+})
+test('trusted sender bypass is the only Safe path and failures cannot become Safe', () => {
+  assert.equal(categoryFor(result(1, 'inconclusive')), 'investigate')
+  assert.equal(categoryFor({ ...result(1), analysis: null, skipped: true }), 'investigate')
+  const trusted = result(1)
+  trusted.skipped = true
+  trusted.message.senderCheck = { status: 'trusted' }
+  assert.equal(categoryFor(trusted), 'safe')
+})
+test('new mail precedes retries and retries respect backoff and limit', () => {
+  const queue = mergeInbox(emptyQueue(), [mail(2), mail(1)])
+  Object.assign(queue.entries[0], { state: 'error', attempts: 1, retryAt: 100 })
+  assert.equal(nextEntry(queue, 200).summary.id, '1')
+  queue.entries[1].state = 'done'
+  assert.equal(nextEntry(queue, 99), undefined)
+  assert.equal(nextEntry(queue, 100).summary.id, '2')
+  queue.entries[0].attempts = 3
+  assert.equal(nextEntry(queue, 200), undefined)
+})
+test('AES-GCM encrypts email content, changes IVs, rejects tampering and another account', async () => {
+  const key = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt'])
+  const data = mergeInbox(emptyQueue(), [mail(1)])
+  finishEntry(data, '1', result(1))
+  const first = await seal(key, 'account-one', data)
+  const second = await seal(key, 'account-one', data)
+  assert.notDeepEqual(first.iv, second.iv)
+  assert.ok(!new TextDecoder().decode(first.ciphertext).includes('Private body'))
+  assert.deepEqual(await unseal(key, 'account-one', first), JSON.parse(JSON.stringify(data)))
+  await assert.rejects(crypto.subtle.exportKey('raw', key))
+  await assert.rejects(unseal(key, 'account-two', first))
+  new Uint8Array(first.ciphertext)[0] ^= 1
+  await assert.rejects(unseal(key, 'account-one', first))
+})

@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="960" viewBox="0 0 1600 960" role="img" aria-labelledby="title desc">
+  <title id="title">SENTRI company ecosystem</title>
+  <desc id="desc">Deployment manages company information, employees, and trusted sender policy. The shared company identity and trusted sender directory inform Dispatch training and Protocol email assessment. Protocol applies the Safe policy label only after sender authentication checks pass.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#191e1a"/>
+      <stop offset="1" stop-color="#262d25"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#303a2f"/>
+      <stop offset="1" stop-color="#252d26"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#a9b69c" stroke-opacity=".055" stroke-width="1"/>
+    </pattern>
+    <filter id="shadow" x="-20%" y="-30%" width="140%" height="170%">
+      <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#090d08" flood-opacity=".35"/>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="8" refY="6" orient="auto">
+      <path d="M2 2L9 6L2 10" fill="none" stroke="#c7d5ab" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <style>
+      .mono { font-family: "SFMono-Regular", Menlo, Consolas, monospace; }
+      .sans { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; }
+      .heading { fill: #e9ecdf; font-weight: 700; }
+      .muted { fill: #aebaa8; }
+      .accent { fill: #c7d5ab; }
+    </style>
+  </defs>
+  <rect width="1600" height="960" fill="url(#background)"/>
+  <rect width="1600" height="960" fill="url(#grid)"/>
+  <rect x="42" y="42" width="1516" height="876" fill="none" stroke="#566450" stroke-width="2"/>
+  <rect x="54" y="54" width="1492" height="852" fill="none" stroke="#566450" stroke-opacity=".55"/>
+
+  <rect x="92" y="83" width="56" height="56" rx="10" fill="#c7d5ab"/>
+  <text x="120" y="120" text-anchor="middle" class="mono" fill="#1b241b" font-size="30" font-weight="700">S</text>
+  <text x="171" y="107" class="mono heading" font-size="26" letter-spacing="5">SENTRI</text>
+  <text x="171" y="131" class="mono muted" font-size="14" letter-spacing="2">COMPANY ECOSYSTEM</text>
+  <text x="1493" y="112" text-anchor="end" class="mono accent" font-size="15" letter-spacing="2">TARGET ARCHITECTURE</text>
+
+  <g filter="url(#shadow)">
+    <rect x="480" y="190" width="640" height="176" rx="18" fill="url(#panel)" stroke="#c7d5ab" stroke-width="2.5"/>
+    <rect x="505" y="215" width="73" height="28" rx="5" fill="#c7d5ab"/>
+    <text x="541" y="235" text-anchor="middle" class="mono" fill="#1c241c" font-size="16" font-weight="700">01</text>
+    <text x="602" y="240" class="mono accent" font-size="17" letter-spacing="2">ADMIN CONTROL CENTER</text>
+    <text x="800" y="294" text-anchor="middle" class="sans heading" font-size="43">DEPLOYMENT</text>
+    <text x="800" y="334" text-anchor="middle" class="sans muted" font-size="21">Company setup  ·  Employees  ·  Trusted senders</text>
+  </g>
+
+  <path d="M800 366V408" fill="none" stroke="#c7d5ab" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <g filter="url(#shadow)">
+    <rect x="430" y="429" width="740" height="112" rx="17" fill="#212a22" stroke="#829478" stroke-width="2"/>
+    <text x="800" y="472" text-anchor="middle" class="mono accent" font-size="17" letter-spacing="2">SHARED COMPANY POLICY</text>
+    <text x="800" y="510" text-anchor="middle" class="sans heading" font-size="25">Company ID + trusted sender directory</text>
+  </g>
+
+  <path d="M800 541V588H400V637" fill="none" stroke="#c7d5ab" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M800 588H1200V637" fill="none" stroke="#c7d5ab" stroke-width="3" marker-end="url(#arrow)"/>
+  <circle cx="800" cy="588" r="7" fill="#c7d5ab"/>
+
+  <g filter="url(#shadow)">
+    <rect x="115" y="655" width="570" height="205" rx="18" fill="url(#panel)" stroke="#768a70" stroke-width="2.5"/>
+    <rect x="140" y="680" width="73" height="28" rx="5" fill="#8faa88"/>
+    <text x="176" y="700" text-anchor="middle" class="mono" fill="#1c241c" font-size="16" font-weight="700">02</text>
+    <text x="236" y="704" class="mono accent" font-size="17" letter-spacing="2">EMPLOYEE TRAINING</text>
+    <text x="400" y="769" text-anchor="middle" class="sans heading" font-size="42">DISPATCH</text>
+    <text x="400" y="807" text-anchor="middle" class="sans muted" font-size="20">Tasks, progress, trusted contact reference</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="915" y="655" width="570" height="205" rx="18" fill="url(#panel)" stroke="#768a70" stroke-width="2.5"/>
+    <rect x="940" y="680" width="73" height="28" rx="5" fill="#8faa88"/>
+    <text x="976" y="700" text-anchor="middle" class="mono" fill="#1c241c" font-size="16" font-weight="700">03</text>
+    <text x="1036" y="704" class="mono accent" font-size="17" letter-spacing="2">EMAIL ASSESSMENT</text>
+    <text x="1200" y="769" text-anchor="middle" class="sans heading" font-size="42">PROTOCOL</text>
+    <text x="1200" y="807" text-anchor="middle" class="sans muted" font-size="20">Safe label after sender authentication</text>
+  </g>
+
+  <text x="800" y="898" text-anchor="middle" class="mono muted" font-size="15" letter-spacing="1.2">ONE ADMINISTRATOR-APPROVED POLICY · TWO EMPLOYEE EXPERIENCES</text>
+</svg>

@@ -9,6 +9,6 @@ export function trustedSenderResult(message: GmailMessage) {
     analysis: null,
     senderCheck: message.senderCheck,
     notes: message.notes,
-    summary: 'Clear — trusted sender, not scanned. This is a sender-policy decision, not a guarantee that the content is safe.',
+    summary: 'Safe under your trusted-sender policy; content was not scanned. This does not guarantee that the email is harmless.',
   }
 }

@@ -1,6 +1,6 @@
 # Changelog
 
-## 2026-10-02
+## 2026-10-02 — Initial preparation
 
 - Established `SENTRI-fresh` as the active workspace for all future work.
 - Transferred the Docker starter from the legacy copy: shared app Dockerfile,
@@ -16,3 +16,19 @@
 
 - Added the current root architecture document and updated Dispatch architecture
   with the Docker/Neon/Qwen 3.0 topology; labeled its older review as historical.
+
+## 2026-10-02 — EC2 deployment progress
+
+- User completed Docker installation on Ubuntu 26.04.1; hello-world passed and
+  Compose reports v5.5.1. NVIDIA toolkit test container detects the A10G GPU.
+- All three application images built successfully on EC2. Deployment, Dispatch,
+  Protocol, and Ollama report healthy container status.
+- Confirmed `huihui_ai/qwen3-abliterated:latest`; downloaded it into Docker's model
+  volume. Harness model status returns ready; live inference is still unverified.
+- Documented how browsers receive pages/assets and API responses through the
+  SSH tunnel while app servers and model processing run on EC2 and data stays on Neon.
+- Browser workflows, Neon operations, Gmail OAuth/analysis, and model GPU inference
+  remain pending. No public domain/HTTPS deployment has been verified.
+- Updated documents in their current `MD's Logs` location and repaired related
+  architecture links. Preserved the existing unfinished merge and Protocol README
+  conflict; incoming local changes are not assumed to match running EC2 images.
