@@ -40,6 +40,7 @@ services:
     ports: ['127.0.0.1:3000:3000']
     environment:
       DATABASE_URL: ${DATABASE_URL:?Set the Neon connection URL in .env}
+      DISPATCH_ORIGIN: ${DISPATCH_ORIGIN:-http://localhost:3000}
       DISPATCH_SESSION_SECRET: ${DISPATCH_SESSION_SECRET:?Set a random session secret in .env}
       OLLAMA_HOST: http://ollama:11434
       SENTRI_MODEL: ${SENTRI_MODEL:?Set the exact Ollama model tag in .env}

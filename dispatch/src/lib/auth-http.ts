@@ -1,3 +1,4 @@
+import { validRequestOrigin } from '@/lib/request-origin'
 import { NextRequest, NextResponse } from 'next/server'
 import { createSession, SESSION_COOKIE, SESSION_SECONDS } from './auth'
 import type { Player } from './player-auth'
@@ -17,7 +18,7 @@ export function allowed(key: string) {
   attempts.set(key,entry); return ++entry.count<=10
 }
 export async function body(request: NextRequest): Promise<Record<string,unknown> | null> {
-  if(request.headers.get('origin')!==request.nextUrl.origin || !request.headers.get('content-type')?.includes('application/json')) return null
+  if(!validRequestOrigin(request) || !request.headers.get('content-type')?.includes('application/json')) return null
   const reader=request.body?.getReader(); if(!reader) return null
   const chunks: Uint8Array[]=[]; let size=0
   while(true) { const {done,value}=await reader.read(); if(done) break; size+=value.length; if(size>4096) { await reader.cancel(); return null }; chunks.push(value) }

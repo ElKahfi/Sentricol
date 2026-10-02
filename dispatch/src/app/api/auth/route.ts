@@ -1,3 +1,4 @@
+import { validRequestOrigin } from '@/lib/request-origin'
 import { NextRequest } from 'next/server'
 import { SESSION_COOKIE } from '@/lib/auth'
 import { loginPlayer, currentPlayer } from '@/lib/player-auth'
@@ -17,7 +18,7 @@ export async function GET() {
   catch { return json({error:'Sign-in is unavailable.'},503) }
 }
 export async function DELETE(request: NextRequest) {
-  if(request.headers.get('origin')!==request.nextUrl.origin) return json({error:'Invalid request origin.'},403)
+  if(!validRequestOrigin(request)) return json({error:'Invalid request origin.'},403)
   const response=json({ok:true})
   response.cookies.set(SESSION_COOKIE,'',{httpOnly:true,secure:request.nextUrl.protocol==='https:',sameSite:'lax',path:'/',maxAge:0})
   return response

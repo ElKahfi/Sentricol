@@ -131,3 +131,14 @@ Closing the tunnel or turning off the Mac stops that access path but does not
 stop EC2 containers. A future public HTTPS domain and reverse proxy would replace
 the browser's need for an SSH tunnel. That public configuration is not yet enabled.
 Neon credentials stay in server configuration; the browser does not receive them.
+
+## 2026-10-02 — Dispatch request origin behind Docker
+
+The browser reported `Invalid request origin` before chat reached Python/Qwen.
+Dispatch now uses one shared origin validator across its proxy, chat, login body,
+and logout checks. Set `DISPATCH_ORIGIN` to the exact browser origin; Compose
+supplies `http://localhost:3000` for the SSH pilot. Direct development without
+that setting retains the request URL origin fallback. Missing or foreign origins
+are rejected; forwarded headers do not establish trust. Authentication remains
+required. Rebuild/recreate Dispatch with the updated Compose file to apply this
+fix; local changes alone do not update the EC2 image. Live chat retesting is pending.

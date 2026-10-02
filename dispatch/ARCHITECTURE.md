@@ -230,3 +230,14 @@ Proposed rules:
 `tests/database-routes.test.cjs` contains isolated route tests using a database double. They cover four email scoring scenarios and resuming an existing assignment without inserting another. They do not exercise actual PostgreSQL SQL execution, real locking, authentication, browser retries, or generation integration.
 
 This documentation update was checked against the source files. It does not claim runtime, database, or deployment validation.
+
+## 2026-10-02 — Dispatch request origin behind Docker
+
+The browser reported `Invalid request origin` before chat reached Python/Qwen.
+Dispatch now uses one shared origin validator across its proxy, chat, login body,
+and logout checks. Set `DISPATCH_ORIGIN` to the exact browser origin; Compose
+supplies `http://localhost:3000` for the SSH pilot. Direct development without
+that setting retains the request URL origin fallback. Missing or foreign origins
+are rejected; forwarded headers do not establish trust. Authentication remains
+required. Rebuild/recreate Dispatch with the updated Compose file to apply this
+fix; local changes alone do not update the EC2 image. Live chat retesting is pending.

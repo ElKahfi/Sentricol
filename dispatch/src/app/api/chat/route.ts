@@ -1,3 +1,4 @@
+import { validRequestOrigin } from '@/lib/request-origin'
 import { spawn } from 'node:child_process'
 import path from 'node:path'
 import { NextRequest, NextResponse } from 'next/server'
@@ -8,7 +9,7 @@ export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   if (!await currentPlayer()) return NextResponse.json({ error: 'Please sign in again.' }, { status: 401 })
-  if (request.headers.get('origin') !== request.nextUrl.origin) return NextResponse.json({ error: 'Invalid request origin.' }, { status: 403 })
+  if (!validRequestOrigin(request)) return NextResponse.json({ error: 'Invalid request origin.' }, { status: 403 })
   let messages
   try {
     const body = await request.text()

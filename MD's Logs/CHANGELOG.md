@@ -32,3 +32,14 @@
 - Updated documents in their current `MD's Logs` location and repaired related
   architecture links. Preserved the existing unfinished merge and Protocol README
   conflict; incoming local changes are not assumed to match running EC2 images.
+
+## 2026-10-02 — Dispatch request origin behind Docker
+
+The browser reported `Invalid request origin` before chat reached Python/Qwen.
+Dispatch now uses one shared origin validator across its proxy, chat, login body,
+and logout checks. Set `DISPATCH_ORIGIN` to the exact browser origin; Compose
+supplies `http://localhost:3000` for the SSH pilot. Direct development without
+that setting retains the request URL origin fallback. Missing or foreign origins
+are rejected; forwarded headers do not establish trust. Authentication remains
+required. Rebuild/recreate Dispatch with the updated Compose file to apply this
+fix; local changes alone do not update the EC2 image. Live chat retesting is pending.
