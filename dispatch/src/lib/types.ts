@@ -10,6 +10,7 @@ export interface Email {
   subject: string
   body: string
   timestamp: string
+  links?: { text: string; url: string }[]
   attachments: Attachment[]
   // Live course emails omit answer keys; legacy preview fixtures may include them.
   isLegitimate?: boolean

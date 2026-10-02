@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "db:seed": "node --env-file=.env.local scripts/seed.mjs",
     "db:email-course": "node --env-file=.env.local scripts/email-course-setup.cjs --apply",
+    "review:ai": "node --env-file=.env.local scripts/review-ai-case.mjs",
     "test": "node --test tests/*.test.cjs"
   },
   "dependencies": {

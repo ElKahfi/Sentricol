@@ -17,7 +17,7 @@ test('password endpoint requires current credentials and renews cookie after a c
 })
 test('task generation uses signed-in identity instead of supplied userCode',async()=>{
  const calls=[]
- const route=loader({'@/lib/player-auth':{currentPlayer:async()=>({userId:'9',userCode:'real-user'})},'@/lib/db':{isDatabaseConfigured:()=>true,withTransaction:async fn=>fn({query:async(sql,args)=>{calls.push(args);return{rows:[]}}})}})('app/api/tasks/next/route.ts')
+ const route=loader({'@/lib/player-auth':{currentPlayer:async()=>({userId:'9',userCode:'real-user'})},'@/lib/harnessTasks':{generatePlayableEmail:async()=>null},'@/lib/db':{isDatabaseConfigured:()=>true,withTransaction:async fn=>fn({query:async(sql,args)=>{calls.push(args);return{rows:[]}}})}})('app/api/tasks/next/route.ts')
  const response=await route.POST({json:async()=>({userCode:'victim-user',taskType:'email'})})
  assert.equal(response.status,404)
  assert.ok(calls.length>0)

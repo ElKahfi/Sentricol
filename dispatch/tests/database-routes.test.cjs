@@ -6,7 +6,7 @@ const ts = require('typescript')
 const path = require('node:path')
 
 // Exercise route logic with an isolated database double; never connect to real data.
-function loadRoute(relative, query, phaseProgressionEnabled = false) {
+function loadRoute(relative, query, phaseProgressionEnabled = false, generated = null) {
   const exports = {}
   const source = fs.readFileSync(path.join(__dirname, '../src', relative), 'utf8')
   const code = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText
@@ -16,6 +16,7 @@ function loadRoute(relative, query, phaseProgressionEnabled = false) {
       if (name === 'next/server') return { NextResponse: { json: (body, options) => ({ body, status: options?.status ?? 200 }) } }
       if (name === '@/lib/player-auth') return { currentPlayer: async () => ({userId:'1',userCode:'test-user'}) }
       if (name === '@/lib/db') return { isDatabaseConfigured: () => true, withTransaction: (fn) => fn({ query }) }
+      if (name === '@/lib/harnessTasks') return { generatePlayableEmail: async () => generated }
       if (name === '@/lib/trainingConfig') return {
         TRAINING_CONFIG: { phaseProgressionEnabled },
         regularTaskType: require('./load-typescript.cjs')()('lib/trainingConfig.ts').regularTaskType,
@@ -114,6 +115,14 @@ test('regular mode allows email generation for a beginner without a difficulty g
   assert.equal(result.body.type, 'email')
   assert.equal(candidateCall.values[2], false)
   assert.match(candidateCall.sql, /\(\$3::boolean = false OR t\.difficulty <= p\.unlocked_difficulty\)/)
+})
+
+test('validated AI email is returned without selecting another catalog case', async () => {
+  const generated = { id: 'new-email', type: 'email', source: 'database' }
+  const route = loadRoute('app/api/tasks/next/route.ts', async () => { throw new Error('Catalog should not be queried') }, false, generated)
+  const result = await route.POST({ json: async () => ({ taskType: 'email' }) })
+  assert.equal(result.status, 200)
+  assert.equal(result.body.id, 'new-email')
 })
 
 test('invalid generation options are rejected before querying the database', async () => {

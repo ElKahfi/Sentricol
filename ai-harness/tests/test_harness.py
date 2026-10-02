@@ -129,6 +129,16 @@ class HarnessTests(unittest.TestCase):
         self.assertEqual(json.loads(json.dumps(result))['body'], result['body'])
         self.assertEqual(len(calls), 1)
 
+    def test_generation_can_return_validated_task_with_email_for_dispatch(self):
+        def model(prompt, payload, rule, timeout):
+            return {'taskProposal': {key: value for key, value in fixture('task-proposal').items() if key != 'decision'},
+                    'email': {**fixture('email-content'), 'id': payload['input']['taskId'],
+                              'recipientEmail': payload['input']['recipientEmail']}}
+        result = Harness(model).generate(fixture('user'), with_task=True)
+        self.assertEqual(result['task']['id'], result['email']['id'])
+        self.assertEqual(result['task']['decision'], 'phishing')
+        self.assertEqual(result['task']['scoringVersion'], SCORING['version'])
+
     def test_one_pass_classification_has_single_source(self):
         proposal_rule = schema('one-pass')['properties']['taskProposal']
         self.assertNotIn('decision', proposal_rule['properties'])
