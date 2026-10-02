@@ -75,6 +75,21 @@ docker compose -f compose.yaml -f compose.gpu.yaml up -d
 
 Use both files on subsequent GPU-host `up` commands. CPU-only smoke tests can use
 `docker compose up -d --build` without the GPU overlay, but Qwen may run slowly.
+
+## Coolify deployment
+
+Use `compose.coolify.yaml` when Coolify deploys the repository. It combines the
+base application stack with the NVIDIA GPU reservation, publishes no host ports,
+and reuses the existing `sentri_ollama-data` volume so the downloaded Qwen 3.0
+model is not duplicated. In Coolify, expose only `deployment` and `dispatch`
+through HTTPS domains on container port 3000. Keep `protocol` private until its
+loopback-only OAuth policy is intentionally redesigned.
+
+Set `DATABASE_URL`, both session secrets, `SENTRI_MODEL`,
+`DEPLOYMENT_ORIGIN`, and `DISPATCH_ORIGIN` in Coolify. The two origin values must
+exactly match their public HTTPS URLs. The existing EC2 Compose stack must be
+stopped immediately before the first Coolify deployment so two Ollama containers
+do not use the same GPU and model volume concurrently.
 The model pull requires network access, disk space, and time; it is deliberately
 explicit. The Ollama health check tests its server, not model availability.
 Pin `OLLAMA_IMAGE` to a tested version/digest once the pilot has been validated.

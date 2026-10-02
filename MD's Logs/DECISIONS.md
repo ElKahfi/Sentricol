@@ -57,3 +57,13 @@ that setting retains the request URL origin fallback. Missing or foreign origins
 are rejected; forwarded headers do not establish trust. Authentication remains
 required. Rebuild/recreate Dispatch with the updated Compose file to apply this
 fix; local changes alone do not update the EC2 image. Live chat retesting is pending.
+## 2026-10-03 — Manage the EC2 stack with Coolify
+
+Use one repository-backed Coolify Compose resource for Deployment, Dispatch,
+Protocol, Ollama, and the harness files included in the application images.
+Expose only Deployment and Dispatch through separate HTTPS domains. Keep
+Protocol private because its Gmail OAuth flow is intentionally bound to
+`127.0.0.1`, and keep Ollama private because only SENTRI services need its API.
+Reuse the external `sentri_ollama-data` volume to avoid downloading the Qwen 3.0
+model again. Stop the manually managed stack immediately before the first
+Coolify deployment to give Coolify sole control of the GPU workload.

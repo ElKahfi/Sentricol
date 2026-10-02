@@ -43,3 +43,12 @@ that setting retains the request URL origin fallback. Missing or foreign origins
 are rejected; forwarded headers do not establish trust. Authentication remains
 required. Rebuild/recreate Dispatch with the updated Compose file to apply this
 fix; local changes alone do not update the EC2 image. Live chat retesting is pending.
+## 2026-10-03 — Coolify deployment definition
+
+- Added `compose.coolify.yaml` as a single-file Coolify stack with NVIDIA GPU
+  access for Ollama.
+- Removed host port publishing from the managed stack so Coolify's HTTPS proxy
+  can route to Deployment and Dispatch over the internal Docker network.
+- Reused the existing `sentri_ollama-data` external volume and kept Protocol and
+  Ollama without public routes.
+- Documented required public origins, secrets, and the manual-to-Coolify cutover.

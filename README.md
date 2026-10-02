@@ -18,6 +18,10 @@ Run each app from its folder with `pnpm install` and `pnpm dev`:
 | Dispatch | http://localhost:3000 | Employee training; settings in `dispatch/.env.local` |
 | Protocol | http://127.0.0.1:3003 | [Protocol setup](protocol/README.md) |
 
+For the EC2 Coolify deployment, use `compose.coolify.yaml`. Coolify publishes
+Deployment and Dispatch through separate HTTPS domains while Protocol and
+Ollama remain private on Docker's internal network.
+
 Protocol connects a real Gmail account through Google OAuth. Python calls the Gmail API;
 selected messages can be analyzed by the shared Qwen harness. Configure a Google OAuth
 client before signing in. This is a loopback-only prototype with memory-only sessions;

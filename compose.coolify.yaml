@@ -1,0 +1,102 @@
+name: sentri-coolify
+
+x-app: &app
+  restart: unless-stopped
+  init: true
+  expose:
+    - "3000"
+  healthcheck:
+    test: [CMD, node, -e, "fetch('http://127.0.0.1:3000').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+    interval: 30s
+    timeout: 5s
+    start_period: 40s
+    retries: 3
+  logging:
+    driver: json-file
+    options:
+      max-size: 10m
+      max-file: '3'
+
+services:
+  deployment:
+    <<: *app
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        APP: deployment
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?Set the Neon connection URL in Coolify}
+      DEPLOYMENT_AUTH_MODE: database
+      DEPLOYMENT_SESSION_SECRET: ${DEPLOYMENT_SESSION_SECRET:?Set a random session secret in Coolify}
+      DEPLOYMENT_ORIGIN: ${DEPLOYMENT_ORIGIN:?Set the exact public HTTPS origin in Coolify}
+
+  dispatch:
+    <<: *app
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        APP: dispatch
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?Set the Neon connection URL in Coolify}
+      DISPATCH_ORIGIN: ${DISPATCH_ORIGIN:?Set the exact public HTTPS origin in Coolify}
+      DISPATCH_SESSION_SECRET: ${DISPATCH_SESSION_SECRET:?Set a random session secret in Coolify}
+      OLLAMA_HOST: http://ollama:11434
+      SENTRI_MODEL: ${SENTRI_MODEL:?Set the exact Ollama model tag in Coolify}
+    depends_on:
+      ollama:
+        condition: service_healthy
+
+  protocol:
+    <<: *app
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        APP: protocol
+    environment:
+      PROTOCOL_BASE_URL: http://127.0.0.1:3003
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GMAIL_PYTHON: /app/protocol/.venv/bin/python
+      SENTRI_HARNESS_PATH: /app/ai-harness
+      OLLAMA_HOST: http://ollama:11434
+      SENTRI_MODEL: ${SENTRI_MODEL:?Set the exact Ollama model tag in Coolify}
+    depends_on:
+      ollama:
+        condition: service_healthy
+
+  ollama:
+    image: ${OLLAMA_IMAGE:-ollama/ollama:latest}
+    restart: unless-stopped
+    expose:
+      - "11434"
+    environment:
+      OLLAMA_HOST: 0.0.0.0:11434
+      SENTRI_MODEL: ${SENTRI_MODEL:?Set the exact Ollama model tag in Coolify}
+    volumes:
+      - ollama-data:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    healthcheck:
+      test: [CMD, ollama, list]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+
+volumes:
+  ollama-data:
+    external: true
+    name: sentri_ollama-data

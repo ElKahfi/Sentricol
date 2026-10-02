@@ -142,3 +142,16 @@ that setting retains the request URL origin fallback. Missing or foreign origins
 are rejected; forwarded headers do not establish trust. Authentication remains
 required. Rebuild/recreate Dispatch with the updated Compose file to apply this
 fix; local changes alone do not update the EC2 image. Live chat retesting is pending.
+## Coolify public routing
+
+`compose.coolify.yaml` is the production-oriented EC2 definition. Coolify's
+Traefik proxy receives public HTTPS traffic on ports 80 and 443 and forwards it
+to the selected service's port 3000 on the internal Docker network. Deployment
+and Dispatch receive distinct public origins. Protocol retains its loopback-only
+OAuth policy and has no public route, while Ollama is reachable only by the app
+containers at `http://ollama:11434`.
+
+The Coolify definition includes the NVIDIA GPU reservation and mounts the
+existing external `sentri_ollama-data` volume. This lets the managed Ollama
+container reuse the downloaded Qwen 3.0 model. The manually started stack must
+be stopped at cutover so both stacks do not share the GPU and model volume.
