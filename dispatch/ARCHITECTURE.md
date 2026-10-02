@@ -1,8 +1,31 @@
 # SENTRI Architecture
 
-Last reviewed: 2026-09-08.
+Deployment topology updated: 2026-10-02. Historical application review: 2026-09-08.
 
-This document describes the source currently in this repository. Proposed changes are explicitly identified; they are not implemented capabilities. The review was static and did not verify a running database or deployment.
+## Current deployment architecture
+
+The active repository is `SENTRI-fresh`. The prepared Docker pilot places
+Deployment, Dispatch, Protocol, and Ollama on one EC2 g5.xlarge, with PostgreSQL
+on Neon. The model family is **Qwen 3.0**; confirm the exact installed tag before
+startup. See the [current system architecture](../ARCHITECTURE.md) and
+[Docker guide](../docker/README.md).
+
+Dispatch's web chat launches `py/sentri.py` as a Python subprocess and calls
+Ollama through `http://ollama:11434`. Dispatch imports the shared Harness scoring
+JSON. Protocol separately launches the shared Harness detector. Those Python
+processes live inside app containers; the Harness is not a standalone HTTP API.
+App ports are loopback-bound for SSH-tunnel access; Ollama is private. Builds and
+live EC2 validation are pending.
+
+## Historical application review — 2026-09-08
+
+The sections below preserve the earlier static review and proposals. They have
+not been re-audited for current gameplay or authentication behavior. In particular,
+the old CLI-only AI description and identity findings are historical, not a claim
+about the current code. The current deployment summary above supersedes their
+hosting and model topology.
+
+The historical review below describes the source as reviewed on 2026-09-08. Proposed changes are explicitly identified; they are not implemented capabilities. The review was static and did not verify a running database or deployment.
 
 ## 1. Product and implementation scope
 

@@ -111,3 +111,14 @@ A message is automatically **Clear — trusted sender, not scanned** when its si
 Opening a message displays the sender decision immediately. Unknown/unverified messages retain the Analyze action; no background transmission of the entire inbox is introduced. Both preview and analysis fetch sender evidence through the authenticated Gmail API. Browser-provided sender names or verdicts are not accepted.
 
 Trust boundary: this consumes Google's `mx.google.com` receiver results on mail retrieved directly from Gmail, following RFC 8601. It does not independently perform cryptographic authentication or establish provenance of manually imported/altered messages. Use this gate for normally received Gmail mail; authenticated compromised accounts remain possible. Clear is a policy skip, never a content-safety guarantee. Exact domain alignment is deliberately conservative: forwarding and subdomain cases can require scanning even when Gmail accepts them.
+
+## Docker / EC2 private pilot
+
+Use the root [Docker starter guide](../docker/README.md) in `SENTRI-fresh`.
+The image contains Node, the Gmail Python environment, and the shared Harness.
+Compose points the Harness at `http://ollama:11434`; set `SENTRI_MODEL` to the
+exact installed **Qwen 3.0** tag in the root `.env`. Google credentials are also
+supplied at runtime. Existing loopback checks stay enabled: access port 3003
+through the documented SSH tunnel and retain the loopback OAuth callback.
+Sessions remain in memory and are lost on restart. This does not enable public
+Protocol access or change the production limitations above.

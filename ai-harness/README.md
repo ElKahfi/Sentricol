@@ -144,3 +144,13 @@ The existing `dispatch/py/sentri.py` web-chat script remains independent.
 
 For an existing legacy database, `dispatch/database/migrations/003_phishing_score_unit.sql`
 converts stored scores from 0–100 to 0–1 once. It has not been applied here.
+
+## Docker / EC2
+
+Use the [Docker starter guide](../docker/README.md) in the active `SENTRI-fresh`
+workspace. The Harness is included beside the apps in their images to preserve
+Python subprocess calls and shared scoring-file imports. Ollama runs separately
+on the private Compose network at `http://ollama:11434`. Runtime configuration
+comes from the root `.env`; app-local environment files are excluded from images.
+The deployment targets **Qwen 3.0**. Supply its exact installed Ollama tag as
+`SENTRI_MODEL`; this does not silently replace the source-code model defaults.

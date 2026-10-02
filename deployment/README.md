@@ -41,3 +41,12 @@ Dispatch access. Real Dispatch no longer accepts the old hardcoded `admin` login
 Checks: `pnpm test`, `pnpm typecheck`, `pnpm build`, `pnpm db:check`, and
 `pnpm test:database`. Database tests use temporary tables and roll back; no real
 employee accounts are created by the tests.
+
+## Docker / EC2
+
+Use the root [Docker starter guide](../docker/README.md) in `SENTRI-fresh`.
+Compose runs Deployment with database authentication and the shared Neon
+`DATABASE_URL`. Set a separate `DEPLOYMENT_SESSION_SECRET`; runtime settings
+come from the root `.env`, not an image-bundled `.env.local`. The private pilot
+binds port 3002 to loopback. Public access requires HTTPS and a matching
+`DEPLOYMENT_ORIGIN`. Compose does not migrate or seed the database.

@@ -132,3 +132,15 @@ Terminal 2: pnpm dev
 ```
 
 Closing the SSH tunnel disconnects Dispatch from the AI.
+
+## Current Docker deployment (2026-10-02)
+
+The active repository is `/Users/elkahfi/Desktop/Sentricol/SENTRI-fresh`.
+For the Compose deployment on the existing g5.xlarge, follow the
+[Docker starter guide](../docker/README.md). Dispatch runs with Python and
+shared Harness assets, connects to Neon through `DATABASE_URL`, and reaches
+Ollama at `http://ollama:11434` inside the Compose network. Set a distinct
+`DISPATCH_SESSION_SECRET` and the exact installed **Qwen 3.0** model tag in
+the root `.env`. The host-Ollama/tunnel instructions elsewhere in this file
+are an alternative setup, not extra steps for Compose. Do not run both model
+servers on the GPU without checking existing consumers and capacity.

@@ -1,0 +1,10 @@
+# NVIDIA GPU hosts only; requires the NVIDIA driver and Container Toolkit.
+services:
+  ollama:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

@@ -31,3 +31,16 @@ Dispatch's existing web chatbot still uses its independent `py/sentri.py` entry 
 Deployment and Dispatch use their own environment files and session secrets. Database
 setup and employee account provisioning are documented in the Deployment README and
 [database guide](deployment/AUTH_DATABASE_GUIDE.md). Never commit environment secrets.
+
+## Active workspace and Docker / EC2
+
+`/Users/elkahfi/Desktop/Sentricol/SENTRI-fresh` is the active working copy.
+The sibling `SENTRI` folder is a legacy backup; make future changes here.
+
+See [the Docker starter guide](docker/README.md) for the private single-host
+EC2 setup: Deployment, Dispatch, Protocol, Harness, and Ollama on a g5.xlarge,
+with PostgreSQL hosted on Neon. The selected model family is **Qwen 3.0**;
+set the exact installed Ollama tag in `SENTRI_MODEL` before startup.
+
+See [System architecture](ARCHITECTURE.md), [Changelog](CHANGELOG.md), and
+[Technical decisions](DECISIONS.md) for the current topology and recorded changes.

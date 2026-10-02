@@ -1,0 +1,17 @@
+**/node_modules
+**/.next
+**/.next-dev
+**/.venv
+**/__pycache__
+**/*.tsbuildinfo
+**/.env*
+.git
+.pnpm-store
+.DS_Store
+artifacts
+output
+tmp
+archive-old-root-lib
+**/scratchpad
+protocol/config/trusted-senders.local.json
+dispatch/ai-harness

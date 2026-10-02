@@ -1,0 +1,91 @@
+name: sentri
+
+x-app: &app
+  restart: unless-stopped
+  init: true
+  healthcheck:
+    test: [CMD, node, -e, "fetch('http://127.0.0.1:3000').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+    interval: 30s
+    timeout: 5s
+    start_period: 40s
+    retries: 3
+  logging:
+    driver: json-file
+    options:
+      max-size: 10m
+      max-file: '3'
+
+services:
+  deployment:
+    <<: *app
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        APP: deployment
+    ports: ['127.0.0.1:3002:3000']
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?Set the Neon connection URL in .env}
+      DEPLOYMENT_AUTH_MODE: database
+      DEPLOYMENT_SESSION_SECRET: ${DEPLOYMENT_SESSION_SECRET:?Set a random session secret in .env}
+      DEPLOYMENT_ORIGIN: ${DEPLOYMENT_ORIGIN:-http://localhost:3002}
+
+  dispatch:
+    <<: *app
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        APP: dispatch
+    ports: ['127.0.0.1:3000:3000']
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?Set the Neon connection URL in .env}
+      DISPATCH_SESSION_SECRET: ${DISPATCH_SESSION_SECRET:?Set a random session secret in .env}
+      OLLAMA_HOST: http://ollama:11434
+      SENTRI_MODEL: ${SENTRI_MODEL:?Set the exact Ollama model tag in .env}
+    depends_on:
+      ollama:
+        condition: service_healthy
+
+  protocol:
+    <<: *app
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        APP: protocol
+    ports: ['127.0.0.1:3003:3000']
+    environment:
+      PROTOCOL_BASE_URL: http://127.0.0.1:3003
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GMAIL_PYTHON: /app/protocol/.venv/bin/python
+      SENTRI_HARNESS_PATH: /app/ai-harness
+      OLLAMA_HOST: http://ollama:11434
+      SENTRI_MODEL: ${SENTRI_MODEL:?Set the exact Ollama model tag in .env}
+    depends_on:
+      ollama:
+        condition: service_healthy
+
+  ollama:
+    image: ${OLLAMA_IMAGE:-ollama/ollama:latest}
+    restart: unless-stopped
+    environment:
+      OLLAMA_HOST: 0.0.0.0:11434
+      SENTRI_MODEL: ${SENTRI_MODEL:?Set the exact Ollama model tag in .env}
+    volumes:
+      - ollama-data:/root/.ollama
+    healthcheck:
+      test: [CMD, ollama, list]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+
+volumes:
+  ollama-data:
