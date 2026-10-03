@@ -13,6 +13,7 @@ interface ProfileRow {
 }
 
 export async function GET(request: NextRequest) {
+  try {
   const player = await currentPlayer()
   if (!player) return NextResponse.json({ error: 'Please sign in.' }, { status: 401 })
   if (!isDatabaseConfigured()) {
@@ -24,7 +25,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'userCode is required' }, { status: 400 })
   }
 
-  try {
     const profile = await queryOne<ProfileRow>(
       `SELECT u.user_code,
               e.full_name,

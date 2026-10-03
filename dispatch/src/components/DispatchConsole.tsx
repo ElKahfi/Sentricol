@@ -48,13 +48,15 @@ const previewQueue: DispatchItem[] = [
 
 export default function DispatchConsole({ designPreview = false, player, adminTools = false, courseModeEnabled = false }: { designPreview?: boolean; player?: import('@/lib/player-auth').Player; adminTools?: boolean; courseModeEnabled?: boolean }) {
   const progressionEnabled = (TRAINING_CONFIG.phaseProgressionEnabled || courseModeEnabled) && !designPreview
-  const emailCourse = useEmailCourse(progressionEnabled)
+  const emailCourse = useEmailCourse(progressionEnabled, player?.userId ?? 'design-preview')
   const courseRef = useRef(emailCourse.course)
   courseRef.current = emailCourse.course
   const [courseEvidence, setCourseEvidence] = useState<string[]>([])
   const demoUserCode = player?.userCode ?? 'design-preview'
+  const pendingAnswerKey = `sentri-pending-answer-v1-${demoUserCode}`
   const [connectionError, setConnectionError] = useState<string | null>(null)
   const savingRef = useRef(false)
+  const retrySave = useRef<(() => Promise<unknown>) | null>(null)
   const pendingSave = useRef<Promise<unknown>>(Promise.resolve())
   const playCorrectSound = useCorrectAnswerSound()
   const playWrongSound = useWrongAnswerSound()
@@ -141,6 +143,18 @@ export default function DispatchConsole({ designPreview = false, player, adminTo
             saved.queue.forEach((item: DispatchItem) => { if (item.assignmentId) knownAssignmentsRef.current.add(item.assignmentId) })
             const mode = saved.started || saved.queue.length ? 'paused' : 'not-started'
             dayModeRef.current = mode; setDayMode(mode)
+            const pending = sessionStorage.getItem(pendingAnswerKey)
+            if (pending) {
+              const input = JSON.parse(pending)
+              const task = saved.queue.find((item: DispatchItem) => item.attemptId === input.attemptId)
+              if (task && typeof input.decision === 'string' && Array.isArray(input.investigatedCategories) &&
+                  input.investigatedCategories.every((value: unknown) => typeof value === 'string')) {
+                startSave(input, () => {
+                  completeQueuedTask(task.id)
+                  try { sessionStorage.removeItem(pendingAnswerKey) } catch { /* Optional browser storage. */ }
+                })
+              }
+            }
           }
         }
       } catch { /* Keep a fresh day if session storage is unavailable. */ }
@@ -268,15 +282,24 @@ export default function DispatchConsole({ designPreview = false, player, adminTo
     }
   }
 
+  function startSave(input: Parameters<typeof submitTaskDecision>[0], onSaved?: () => void) {
+    try { sessionStorage.setItem(pendingAnswerKey, JSON.stringify(input)) } catch { /* Server replay still protects saved answers. */ }
+    const persist = async () => {
+      const result = await submitTaskDecision(input)
+      if (result) setGameState(prev => ({ ...prev, graduationProgress: courseRef.current?.progress ?? result.graduationPercentage }))
+      retrySave.current = null
+      setConnectionError(null)
+      onSaved?.()
+    }
+    retrySave.current = persist
+    pendingSave.current = persist()
+    void pendingSave.current.catch(() => setConnectionError('Your answer is waiting to be saved. Click Retry to save it safely.'))
+  }
+
   const saveDecision = (id: string | null, decision: string, categories: string[] = [], attemptNumber = 1) => {
-    const item = gameState.dispatchQueue.find((entry) => entry.id === id)
+    const item = gameState.dispatchQueue.find(entry => entry.id === id)
     if (designPreview || !item?.attemptId) return
-    pendingSave.current = submitTaskDecision({ attemptId: item.attemptId, decision, investigatedCategories: categories, attemptNumber })
-      .then((result) => {
-        if (result) setGameState((prev) => ({ ...prev, graduationProgress: courseRef.current?.progress ?? result.graduationPercentage }))
-        setConnectionError(null)
-      })
-    void pendingSave.current.catch(() => setConnectionError('Your answer could not be saved. Refresh to resume this task.'))
+    startSave({ attemptId: item.attemptId, decision, investigatedCategories: categories, attemptNumber })
   }
 
   useEffect(() => {
@@ -340,6 +363,7 @@ export default function DispatchConsole({ designPreview = false, player, adminTo
   }, [designPreview, progressionEnabled, dayLoaded])
 
   const completeQueuedTask = (id: string | null) => {
+    try { sessionStorage.removeItem(pendingAnswerKey) } catch { /* Optional browser storage. */ }
     databaseExhaustedRef.current = false
     setGameState(prev => {
       const queue = prev.dispatchQueue.filter(item => item.id !== id)
@@ -539,7 +563,14 @@ export default function DispatchConsole({ designPreview = false, player, adminTo
     if (shouldRetry) { setShowFeedback(false); setLastDecision(null); return }
     if (savingRef.current) return
     savingRef.current = true
-    try { await pendingSave.current } catch { return } finally { savingRef.current = false }
+    try {
+      await pendingSave.current.catch(error => {
+        if (!retrySave.current) throw error
+        pendingSave.current = retrySave.current()
+        return pendingSave.current
+      })
+    } catch { setConnectionError('Your answer is still waiting to be saved. Please retry.'); return }
+    finally { savingRef.current = false }
     setShowFeedback(false)
     setLastDecision(null)
 
@@ -593,7 +624,14 @@ export default function DispatchConsole({ designPreview = false, player, adminTo
   const handleContinueAfterPasswordFeedback = async () => {
     if (savingRef.current) return
     savingRef.current = true
-    try { await pendingSave.current } catch { return } finally { savingRef.current = false }
+    try {
+      await pendingSave.current.catch(error => {
+        if (!retrySave.current) throw error
+        pendingSave.current = retrySave.current()
+        return pendingSave.current
+      })
+    } catch { setConnectionError('Your answer is still waiting to be saved. Please retry.'); return }
+    finally { savingRef.current = false }
     setShowPasswordFeedback(false)
     setLastPasswordDecision(null)
     setCheckedPasswordCharacteristics(new Set())
@@ -630,7 +668,14 @@ export default function DispatchConsole({ designPreview = false, player, adminTo
   const handleContinueAfterDataClassificationFeedback = async () => {
     if (savingRef.current) return
     savingRef.current = true
-    try { await pendingSave.current } catch { return } finally { savingRef.current = false }
+    try {
+      await pendingSave.current.catch(error => {
+        if (!retrySave.current) throw error
+        pendingSave.current = retrySave.current()
+        return pendingSave.current
+      })
+    } catch { setConnectionError('Your answer is still waiting to be saved. Please retry.'); return }
+    finally { savingRef.current = false }
     setShowDataClassificationFeedback(false)
     setLastDataClassificationDecision(null)
     
@@ -663,7 +708,14 @@ export default function DispatchConsole({ designPreview = false, player, adminTo
     >
       {designPreview && <span className="design-preview-label">DESIGN PREVIEW · SAMPLE DATA</span>}
       {/* Header - Fixed height */}
-      {connectionError && <div role="alert" className="connection-notice"><span>{connectionError}</span><button onClick={() => window.location.reload()}>RETRY</button></div>}
+      {connectionError && <div role="alert" className="connection-notice"><span>{connectionError}</span><button onClick={() => {
+        if (!retrySave.current) { window.location.reload(); return }
+        if (savingRef.current) return
+        savingRef.current = true
+        pendingSave.current = retrySave.current()
+        void pendingSave.current.catch(() => setConnectionError('Your answer is still waiting to be saved. Please retry.'))
+          .finally(() => { savingRef.current = false })
+      }}>RETRY</button></div>}
       {emailCourse.error && <div role="alert" className="connection-notice"><span>{emailCourse.error}</span><button disabled={emailCourse.busy} onClick={() => void emailCourse.retry()}>RESUME SAVED COURSE</button></div>}
       <Header 
         currentTime={displayTime}

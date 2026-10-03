@@ -19,10 +19,14 @@ interface AttemptContext {
   base_experience: number
   incident_code: 'email' | 'password' | 'data-classification'
   started_at: Date
+  completed_at: Date | null
+  score: number
+  experience_gained: number
   raw_content: { requiredInvestigationCategories?: string[]; investigationStates?: Record<string, string> }
 }
 
 export async function POST(request: Request) {
+  try {
   const player = await currentPlayer()
   if (!player) return NextResponse.json({ error: 'Please sign in.' }, { status: 401 })
   if (!isDatabaseConfigured()) {
@@ -30,16 +34,17 @@ export async function POST(request: Request) {
   }
 
   const body = (await request.json()) as AttemptRequest
-  if (!body.attemptId || !body.decision) {
+  if (!body || typeof body.attemptId !== 'string' || typeof body.decision !== 'string' || !body.decision ||
+      (body.investigatedCategories !== undefined && (!Array.isArray(body.investigatedCategories) || body.investigatedCategories.some(value => typeof value !== 'string')))) {
     return NextResponse.json({ error: 'attemptId and decision are required' }, { status: 400 })
   }
   const decision = body.decision
 
-  try {
     const result = await withTransaction(async (client) => {
       const contextResult = await client.query<AttemptContext>(
         `SELECT a.attempt_id,
                 a.started_at,
+                a.completed_at, a.score, a.experience_gained,
                 ta.assignment_id,
                 ta.user_id,
                 c.correct_decision,
@@ -51,12 +56,24 @@ export async function POST(request: Request) {
            JOIN cases c ON c.case_id = ta.case_id
            JOIN tasks t ON t.task_id = c.task_id
            JOIN incident_types it ON it.incident_type_id = t.incident_type_id
-          WHERE a.attempt_id = $1 AND ta.user_id = $2 AND a.completed_at IS NULL
+          WHERE a.attempt_id = $1 AND ta.user_id = $2
           FOR UPDATE`,
         [body.attemptId, player.userId],
       )
       const context = contextResult.rows[0]
       if (!context) return null
+      // A response can be lost after COMMIT. Replay the persisted result without
+      // awarding EXP or updating statistics a second time.
+      if (context.completed_at) {
+        const saved = await client.query<{is_correct: boolean; graduation_percentage: string}>(
+          `SELECT r.is_correct, p.graduation_percentage FROM task_results r
+           JOIN user_progress p ON p.user_id=$2 WHERE r.attempt_id=$1`,
+          [context.attempt_id, player.userId])
+        if (!saved.rows[0]) throw new Error('Completed attempt has no saved result')
+        return { isCorrect: saved.rows[0].is_correct, score: Number(context.score),
+          experienceGained: Number(context.experience_gained),
+          graduationPercentage: Number(saved.rows[0].graduation_percentage) }
+      }
       if (TRAINING_CONFIG.phaseProgressionEnabled && context.incident_code === 'email') return { emailCourseRequired: true as const }
 
       const decisionMatches =
@@ -247,6 +264,7 @@ export async function POST(request: Request) {
     if ('emailCourseRequired' in result) return NextResponse.json({ error: 'Resume email investigation through the email course.' }, { status: 409 })
     return NextResponse.json(result)
   } catch (error) {
+    if (error instanceof SyntaxError) return NextResponse.json({ error: 'Invalid JSON request.' }, { status: 400 })
     console.error('Attempt recording failed', error)
     return NextResponse.json({ error: 'Database attempt recording failed' }, { status: 500 })
   }

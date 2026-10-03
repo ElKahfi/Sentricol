@@ -21,8 +21,14 @@ export function getDatabase() {
         ? false
         : { rejectUnauthorized: false },
       max: 10,
+      connectionTimeoutMillis: 10000,
+      idleTimeoutMillis: 30000,
     })
 
+  if (!globalForDatabase.sentricolPool) {
+    // Idle connections can close during a database restart or Neon suspension.
+    pool.on('error', () => console.error('An idle database connection closed; the pool will reconnect.'))
+  }
   globalForDatabase.sentricolPool = pool
 
   return pool

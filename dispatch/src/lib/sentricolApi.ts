@@ -1,3 +1,4 @@
+import { readApiResponse } from './apiResponse'
 import { DispatchItem } from '@/lib/types'
 
 export interface PlayerProfile {
@@ -10,19 +11,11 @@ export interface PlayerProfile {
   unlockedDifficulty: number
 }
 
-async function readJson<T>(response: Response): Promise<T> {
-  const body = await response.json()
-  if (!response.ok) {
-    throw Object.assign(new Error(body.error ?? `Request failed with ${response.status}`), { status: response.status })
-  }
-  return body as T
-}
-
 export async function fetchPlayerProfile(userCode: string) {
   const response = await fetch(`/api/profile?userCode=${encodeURIComponent(userCode)}`, {
     cache: 'no-store',
   })
-  return readJson<PlayerProfile>(response)
+  return readApiResponse<PlayerProfile>(response)
 }
 
 export async function requestPersonalizedTask(userCode: string, options: { taskType?: DispatchItem['type']; knownAssignmentIds?: string[] } = {}) {
@@ -31,7 +24,7 @@ export async function requestPersonalizedTask(userCode: string, options: { taskT
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ userCode, ...options }),
   })
-  return readJson<DispatchItem>(response)
+  return readApiResponse<DispatchItem>(response)
 }
 
 export async function submitTaskDecision(input: {
@@ -48,7 +41,7 @@ export async function submitTaskDecision(input: {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(input),
   })
-  return readJson<{
+  return readApiResponse<{
     isCorrect: boolean
     score: number
     experienceGained: number

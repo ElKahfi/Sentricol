@@ -49,6 +49,7 @@ function toDispatchItem(
 }
 
 export async function POST(request: Request) {
+  try {
   const player = await currentPlayer()
   if (!player) return NextResponse.json({ error: 'Please sign in.' }, { status: 401 })
   if (!isDatabaseConfigured()) {
@@ -56,6 +57,7 @@ export async function POST(request: Request) {
   }
 
   const body = (await request.json()) as NextTaskRequest
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return NextResponse.json({ error: 'Invalid request.' }, { status: 400 })
   body.userCode = player.userCode
   if (!body.userCode) {
     return NextResponse.json({ error: 'userCode is required' }, { status: 400 })
@@ -71,7 +73,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid task generation options' }, { status: 400 })
   }
 
-  try {
     const taskType = body.taskType ?? (TRAINING_CONFIG.phaseProgressionEnabled ? null : regularTaskType(Math.floor(Math.random() * 10)))
     if (taskType === 'email' && !TRAINING_CONFIG.phaseProgressionEnabled) {
       try {
@@ -224,6 +225,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(result)
   } catch (error) {
+    if (error instanceof SyntaxError) return NextResponse.json({ error: 'Invalid JSON request.' }, { status: 400 })
     console.error('Personalized task selection failed', error)
     return NextResponse.json({ error: 'Database task selection failed' }, { status: 500 })
   }
