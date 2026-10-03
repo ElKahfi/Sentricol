@@ -5,7 +5,11 @@ import { AuthError } from './registration'
 const state = globalThis as unknown as { deploymentAuthLimits?: Map<string, { count: number; until: number }> }
 const limits = state.deploymentAuthLimits ??= new Map()
 export function sameOrigin(request: NextRequest) {
-  const expected = process.env.DEPLOYMENT_ORIGIN || request.nextUrl.origin
+  const expected = process.env.DEPLOYMENT_ORIGIN ?? request.nextUrl.origin
+  try {
+    const url = new URL(expected)
+    if (!['http:', 'https:'].includes(url.protocol) || url.origin !== expected) throw new Error()
+  } catch { throw new AuthError('DEPLOYMENT_ORIGIN must be a complete origin such as https://sentriadmin.duckdns.org, without a path or trailing slash.', 503) }
   if (request.headers.get('origin') !== expected) throw new AuthError('Invalid request origin.', 403)
 }
 export function throttle(key: string) {

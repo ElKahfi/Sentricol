@@ -16,8 +16,8 @@ async function main() {
       companies: 'company_id, company_code, company_name, industry',
       departments: 'department_id, company_id, department_code, department_name',
       ranks: 'rank_id, rank_code, rank_name, seniority_level',
-      employees: 'employee_id, employee_code, department_id, rank_id, full_name, position_title, work_email, is_active',
-      users: 'user_id, user_code, employee_id, username, email, password_hash, role, last_login_at',
+      employees: 'employee_id, employee_code, department_id, rank_id, full_name, position_title, work_email, is_active, personnel_number',
+      users: 'user_id, user_code, employee_id, username, email, password_hash, role, last_login_at, auth_version',
     })) {
       await client.query(`SELECT ${columns} FROM ${table} LIMIT 0`)
       const result = await client.query("SELECT has_table_privilege(current_user, $1, 'SELECT') AND has_table_privilege(current_user, $1, 'INSERT') AND ($1 <> 'users' OR has_table_privilege(current_user, $1, 'UPDATE')) AS allowed", [table])

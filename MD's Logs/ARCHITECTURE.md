@@ -1,6 +1,20 @@
 # SENTRI architecture
 
-Updated: 2026-10-02. Active workspace: `SENTRI-fresh`.
+Latest Protocol change (2026-10-03): public HTTPS is now supported in code with
+PROTOCOL_BASE_URL and PROTOCOL_ALLOWED_EMAILS. This supersedes the earlier private
+Protocol topology below. Coolify can route Protocol to port 3000; Google OAuth
+returns to the configured HTTPS callback. Exact origin/Host validation and
+mailbox authorization gate access; tokens stay in one Node process's memory.
+Restart requires reconnection. Public deployment and real Gmail tests are pending.
+
+Authentication update (2026-10-03): live admin registration rejects its own
+public origin; Dispatch masks request rejection as missing credentials. Local
+fixes preserve origin enforcement, expose accurate validation errors and set
+Secure Dispatch cookies behind TLS termination. Locally configured Neon identity
+schema passed read-only checks; Coolify runtime database/revision and successful
+sign-in remain unverified. See [investigation](../docker/AUTH-TROUBLESHOOTING.md).
+
+Updated: 2026-10-03. Active workspace: `SENTRI-fresh`.
 
 ## Running private deployment topology
 
@@ -73,9 +87,8 @@ Verified from user-supplied EC2 output on 2026-10-02:
 Still unverified: browser access through the tunnel, Neon login/data operations,
 actual Qwen inference and its GPU use, and Gmail OAuth/email analysis. Model
 installation and HTTP health checks alone do not prove those workflows work.
-The local workspace currently contains an unfinished merge, including a conflict
-in `protocol/README.md`. Those incoming changes are not established as deployed;
-resolve and test them before rebuilding the server from that working tree.
+The previously recorded merge conflict is resolved; the working tree was clean
+before this documentation update. That does not establish which commit EC2 runs.
 
 ## Related documents
 
@@ -129,7 +142,8 @@ URL is the tunnel entrance, not evidence of a locally running application server
 
 Closing the tunnel or turning off the Mac stops that access path but does not
 stop EC2 containers. A future public HTTPS domain and reverse proxy would replace
-the browser's need for an SSH tunnel. That public configuration is not yet enabled.
+the browser's need for an SSH tunnel. Coolify's dashboard is now publicly routed;
+public SENTRI application routing has not yet been verified.
 Neon credentials stay in server configuration; the browser does not receive them.
 
 ## 2026-10-02 — Dispatch request origin behind Docker
@@ -144,6 +158,13 @@ required. Rebuild/recreate Dispatch with the updated Compose file to apply this
 fix; local changes alone do not update the EC2 image. Live chat retesting is pending.
 ## Coolify public routing
 
+Status on 2026-10-03: the dashboard at `https://sentricol.duckdns.org` was
+reachable with a valid certificate, and the GitHub source showed Connected.
+The application resource selects `ElKahfi/Sentricol` / `main`, base `/`, and
+`/compose.coolify.yaml`. The latest screenshot still requested Load Compose;
+successful application deployment is not confirmed. The following describes
+the intended application topology.
+
 `compose.coolify.yaml` is the production-oriented EC2 definition. Coolify's
 Traefik proxy receives public HTTPS traffic on ports 80 and 443 and forwards it
 to the selected service's port 3000 on the internal Docker network. Deployment
@@ -155,3 +176,26 @@ The Coolify definition includes the NVIDIA GPU reservation and mounts the
 existing external `sentri_ollama-data` volume. This lets the managed Ollama
 container reuse the downloaded Qwen 3.0 model. The manually started stack must
 be stopped at cutover so both stacks do not share the GPU and model volume.
+
+An Elastic IP is now associated with the instance and DuckDNS was updated,
+according to the user. The new numeric IP was not supplied; earlier transient
+addresses must not be treated as current. The domain survives a stopped instance,
+but no dashboard or application can answer while EC2 is stopped.
+
+Existing containers using `restart: unless-stopped` should return when Docker
+starts, provided they were not explicitly stopped or removed and Docker starts
+on boot. This reuses images and the EBS-backed model volume without rebuilding;
+Qwen must load into GPU memory again for inference. Protocol's in-memory OAuth
+sessions are lost. Recovery has not yet been verified with a stop/start test.
+
+GitHub pushes can trigger a build and container replacement only when automatic
+deployment and webhook delivery are configured for the selected repository and
+branch. A push to another repository does not update this resource. After a push
+while EC2 was stopped, deploy the latest commit manually and verify its revision.
+See [Coolify operations](../docker/COOLIFY.md) for the complete procedure.
+
+## 2026-10-03 — Short harness benchmark
+
+`ai-harness/benchmark.py` uses isolated Python workers calling the production
+generation harness against Ollama, with bounded concurrency and wall deadlines.
+It bypasses HTTP and Neon; JSON reports contain metadata and outcomes, not content.

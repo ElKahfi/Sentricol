@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { currentPlayer, changePassword } from '@/lib/player-auth'
-import { allowed, body, json, sessionResponse, validPassword } from '@/lib/auth-http'
+import { allowed, body, json, sessionResponse, validPassword, authFailure } from '@/lib/auth-http'
 export async function POST(request: NextRequest) {
   try {
     const input=await body(request)
@@ -11,5 +11,5 @@ export async function POST(request: NextRequest) {
     if(!allowed('password:'+player.userId)) return json({error:'Too many attempts. Try again in 15 minutes.'},429)
     const updated=await changePassword(player,input.currentPassword,input.newPassword)
     return updated ? sessionResponse(updated,request) : json({error:'Current password is incorrect or your session changed. Please try again.'},400)
-  } catch { return json({error:'Unable to change your password. Please try again.'},503) }
+  } catch (error) { return authFailure(error,'Unable to change your password. Please try again.') }
 }

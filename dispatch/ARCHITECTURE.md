@@ -241,3 +241,11 @@ that setting retains the request URL origin fallback. Missing or foreign origins
 are rejected; forwarded headers do not establish trust. Authentication remains
 required. Rebuild/recreate Dispatch with the updated Compose file to apply this
 fix; local changes alone do not update the EC2 image. Live chat retesting is pending.
+# 2026-10-03 authentication update
+
+Dispatch login validates the configured public origin before database queries.
+Request parsing now distinguishes origin, content-type, size and JSON failures.
+Production login/logout cookies are Secure behind the HTTP proxy hop. Player-role
+and active-employee requirements remain unchanged. See
+[authentication troubleshooting](../docker/AUTH-TROUBLESHOOTING.md) for evidence,
+runtime configuration and pending live verification.

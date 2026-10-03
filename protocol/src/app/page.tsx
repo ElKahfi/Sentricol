@@ -39,7 +39,7 @@ export default function Home() {
     const reason = new URLSearchParams(window.location.search).get('gmail')
     if (reason) {
       window.history.replaceState(null, '', window.location.pathname)
-      if (reason !== 'connected') setError(reason === 'denied' ? 'Google access was cancelled.' : 'Google sign-in could not complete. Check your OAuth setup and try again.')
+      if (reason !== 'connected') setError(reason === 'forbidden' ? 'This Google account is not enabled for Protocol. Contact your administrator.' : reason === 'denied' ? 'Google access was cancelled.' : 'Google sign-in could not complete. Check your OAuth setup and try again.')
     }
     void api<Account>('/api/gmail/session', { signal: controller.signal }).then(setAccount).catch(failure => { if (!controller.signal.aborted) setError(failure.message) })
     void checkStatus()
@@ -99,7 +99,7 @@ export default function Home() {
     <header className="topbar"><div className="brand">SENTRI <span>/ PROTOCOL</span></div><span className={`status ${status?.ready ? 'ready' : ''}`}><span className="status-dot" />{!status ? 'CHECKING MODEL' : status.ready ? 'MODEL CONNECTED' : 'MODEL OFFLINE'}</span></header>
     <section className="intro"><p className="eyebrow">GMAIL / AUTOMATIC INBOX PROTECTION</p><h1>Check before <em>you act.</em></h1><p className="lead">Your 20 newest Inbox emails, automatically assessed. New arrivals go next, after the current analysis finishes.</p></section>
     <section className="panel account"><div><h2>{account?.connected ? account.email : 'CONNECT YOUR GMAIL'}</h2><p className="muted">{account?.connected ? 'Read-only Gmail access · Email content and results saved encrypted on this device.' : 'Sign in with Google to start automatic processing. SENTRI never receives your Google password.'}</p></div><div className="account-actions">{view.loginRequired && <button className="primary" disabled={busy} onClick={connect}>[ RECONNECT GMAIL ]</button>}<button className={account?.connected ? '' : 'primary'} disabled={busy || !account || (!account.connected && !account.configured)} onClick={account?.connected ? disconnect : connect}>{account?.connected ? '[ DISCONNECT ]' : '[ SIGN IN WITH GOOGLE ]'}</button></div></section>
-    {account && !account.configured && <section className="panel setup"><h2>GOOGLE SETUP REQUIRED</h2><p>Create a Web application OAuth client, enable the Gmail API, and add your email as a test user in Google Auth Platform.</p><p>Authorized redirect URI: <code>{account.redirectUri}</code></p><p>Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to protocol/.env.local, then restart this app. Full steps are in protocol/README.md.</p><a href="https://console.cloud.google.com/auth/overview" target="_blank" rel="noreferrer">Open Google Auth Platform ↗</a></section>}
+    {account && !account.configured && <section className="panel setup"><h2>GOOGLE SETUP REQUIRED</h2><p>Your administrator needs to configure Google sign-in and enable your email address for Protocol.</p><p>Authorized redirect URI: <code>{account.redirectUri}</code></p><a href="https://console.cloud.google.com/auth/overview" target="_blank" rel="noreferrer">Open Google Auth Platform ↗</a></section>}
     {(error || view.error) && <p className="error" role="alert">{error || view.error}</p>}
     {view.loginRequired && <p className="error" role="status">Gmail access expired. Reconnect to continue. Saved results remain on this device.</p>}
     {account?.connected ? <>

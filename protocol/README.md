@@ -1,6 +1,50 @@
 # SENTRI Protocol
 
-Local Gmail phishing-analysis app. Google handles login; Python calls the Gmail API. Connecting Gmail starts automatic analysis of the 20 newest Inbox messages by the shared Qwen harness.
+Gmail phishing-analysis app supporting loopback development and explicitly configured public HTTPS. Google handles login; Python calls the Gmail API. Connecting Gmail starts automatic analysis of the 20 newest Inbox messages by the shared Qwen harness.
+
+## Public HTTPS on Coolify
+
+Use one Protocol container/process. This change is prepared locally; DNS, Google
+configuration, deployment and real Gmail verification have not been performed.
+
+1. Register an available DuckDNS name such as `sentriprotocol.duckdns.org` and
+   point it to the instance's associated Elastic IP. This is a suggested name,
+   not a confirmed domain registration.
+2. Set Coolify production runtime variables:
+
+   ```dotenv
+   PROTOCOL_BASE_URL=https://sentriprotocol.duckdns.org
+   PROTOCOL_ALLOWED_EMAILS=your-google-email@example.com
+   ```
+
+   Substitute the actual domain and exact permitted Google mailbox addresses.
+   Multiple addresses use commas. No wildcard access is granted. Public mode
+   denies login until the allowlist is configured. Keep GOOGLE_CLIENT_ID and
+   GOOGLE_CLIENT_SECRET configured privately as before.
+3. In the existing Google Web application OAuth client, add the exact redirect:
+   `https://sentriprotocol.duckdns.org/api/gmail/callback`. Keep the local callback
+   if still used. Enable Gmail API and add permitted users as Google test users
+   while the OAuth app is in Testing. Google requires an exact redirect match;
+   see [Google's OAuth guide](https://developers.google.com/identity/protocols/oauth2/web-server).
+4. Publish the reviewed changes, reload `/compose.coolify.yaml` in Coolify, set
+   Protocol's domain to `https://sentriprotocol.duckdns.org:3000`, then deploy.
+   The environment base URL and browser URL do not include `:3000`. The two
+   new variables are required by this Compose file before any stack redeployment.
+5. Open the HTTPS site, connect an allowed Google account, verify Inbox and an
+   analysis, refresh, then disconnect. A disallowed account must receive no
+   Protocol session. Confirm restarting Protocol requires Gmail reconnection.
+
+The public Host must be preserved by Coolify. State-changing requests require
+the exact configured Origin; forwarded headers do not establish trust. OAuth
+callbacks can omit Origin and still require one-time state bound to the flow
+cookie plus PKCE. Google-reported mailbox identity is checked before storing a
+session and on subsequent use. Rejected accounts' tokens are revoked best-effort
+and never retained. Public model status also requires a Gmail session.
+
+Cookies are Secure on HTTPS, HttpOnly and SameSite=Lax. Tokens remain only in
+server memory for up to about an hour; no database, refresh tokens or persistent
+token files are introduced. Users reconnect after expiration/restart. The page
+itself is publicly visible; mailbox APIs and analysis require an allowed session.
 
 ## Google setup (first time)
 
@@ -86,7 +130,12 @@ Development uses `.next-dev` while production uses `.next`, so a production buil
 
 ## Production scope
 
-This implementation intentionally accepts only loopback requests and runs in one persistent Node process with Python installed. It is not ready for a public/serverless or multi-instance deployment. Production needs company-managed identity and access controls, HTTPS, an explicit session/token-storage policy, and infrastructure privacy controls. Gmail read-only is a restricted scope; review Google's verification and security-assessment requirements for your distribution and data usage before public rollout.
+This implementation runs in one persistent Node process with Python installed.
+Public access uses HTTPS and an explicit mailbox allowlist; loopback development
+remains supported. It does not support multi-instance/serverless session sharing.
+Gmail read-only is a restricted scope; Google's verification requirements still
+apply to wider distribution. Public HTTPS support does not itself verify the
+Google OAuth application. Review infrastructure logging separately.
 
 References: [Gmail API guides](https://developers.google.com/workspace/gmail/api/guides), [server-side OAuth](https://developers.google.com/identity/protocols/oauth2/web-server), [Gmail scopes](https://developers.google.com/workspace/gmail/api/auth/scopes).
 

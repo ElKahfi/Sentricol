@@ -1,5 +1,6 @@
 import { randomBytes, timingSafeEqual } from 'node:crypto'
 import type { NextRequest, NextResponse } from 'next/server'
+import { allowedMailbox } from './access-config'
 
 export const sessionCookie = 'protocol_gmail_session'
 export const flowCookie = 'protocol_gmail_flow'
@@ -31,6 +32,7 @@ export function consumePending(id: string | undefined, state: string | null) {
   return pending
 }
 export function createSession(token: string, email: string, expiresIn: number) {
+  if (!allowedMailbox(email)) throw new Error('This Google account is not allowed.')
   prune()
   if (store.sessions.size >= 100) throw new Error('Too many active sessions.')
   if (!token || !email || !Number.isFinite(expiresIn) || expiresIn <= 30) throw new Error('Invalid Google session.')
@@ -40,7 +42,8 @@ export function createSession(token: string, email: string, expiresIn: number) {
 }
 export function getSession(request: NextRequest) {
   prune()
-  return store.sessions.get(request.cookies.get(sessionCookie)?.value ?? '') ?? null
+  const session = store.sessions.get(request.cookies.get(sessionCookie)?.value ?? '')
+  return session && allowedMailbox(session.email) ? session : null
 }
 export function deleteSession(request: NextRequest) {
   const id = request.cookies.get(sessionCookie)?.value

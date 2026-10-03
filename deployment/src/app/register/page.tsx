@@ -35,7 +35,7 @@ export default function Register() {
       setSavedMode(result.mode)
       setPassword('')
       go(2)
-    } catch (error) { setError(error instanceof Error ? error.message : 'Registration failed. Please try again.') }
+    } catch (error) { setError(error instanceof Error ? error.message : 'Registration failed. Please try again.'); go(1) }
     finally { setSaving(false); submitting.current = false }
   }
 

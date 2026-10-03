@@ -1,5 +1,40 @@
 # Technical decisions
 
+## 2026-10-03 — Publish Protocol through HTTPS with selected accounts
+
+The user requested public Protocol access. This supersedes the earlier decision
+to keep Protocol loopback-only. Use exact configured HTTPS origin/Host checks
+behind Coolify and require PROTOCOL_ALLOWED_EMAILS against Google's mailbox
+identity. Keep one process with memory-only, short-lived Gmail sessions; users
+reconnect after restart. Do not persist refresh tokens or share mailbox sessions.
+Ollama remains private. DNS/Google setup and live OAuth verification are pending.
+
+## 2026-10-03 — Fail closed with actionable authentication errors
+
+Keep exact configured browser-origin checks behind Coolify; do not trust arbitrary
+forwarded headers or guess a scheme for malformed configuration. Distinguish
+request parsing/origin rejection from credential failure. Set Secure production
+cookies independently of the internal HTTP proxy hop. Check schema read-only
+before proposing migrations and preserve the admin/player account separation.
+See [authentication evidence and rollout](../docker/AUTH-TROUBLESHOOTING.md).
+
+## 2026-10-03 — Stable addressing and deployment lifecycle
+
+The user associated an Elastic IP with EC2 and updated DuckDNS. Keep this
+address associated across stop/start cycles. Reserve `sentricol.duckdns.org`
+for the Coolify dashboard and use separate names for the public applications;
+those application names are not yet confirmed.
+
+Stopping EC2 intentionally makes all hosted services unavailable. Resume the
+existing successful deployment through Docker's restart policy after boot;
+rebuild only when publishing changes or repairing deployment. Persistent model
+data stays in the external volume and PostgreSQL stays in Neon.
+
+Use `ElKahfi/Sentricol:main` as Coolify's deployment source. Automatic updates
+remain conditional on Auto Deploy and verified webhook delivery. After pushes
+missed while EC2 was stopped, manually deploy and verify the latest commit.
+Do not equate connected GitHub access with a tested deployment pipeline.
+
 ## 2026-10-02 — Use SENTRI-fresh as the active workspace
 
 The user explicitly selected `/Users/elkahfi/Desktop/Sentricol/SENTRI-fresh`
@@ -67,3 +102,10 @@ Protocol private because its Gmail OAuth flow is intentionally bound to
 Reuse the external `sentri_ollama-data` volume to avoid downloading the Qwen 3.0
 model again. Stop the manually managed stack immediately before the first
 Coolify deployment to give Coolify sole control of the GPU workload.
+
+## 2026-10-03 — Use a short direct-harness capacity probe
+
+Use standard-library process workers and fictional internal profiles to measure
+validated generation without database writes or catalog fallbacks. Keep endurance
+and authenticated HTTP testing outside this time-limited first benchmark. Small
+samples report median/slowest timing, not p95 or proven sustained capacity.

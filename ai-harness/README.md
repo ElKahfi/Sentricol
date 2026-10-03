@@ -167,3 +167,9 @@ on the private Compose network at `http://ollama:11434`. Runtime configuration
 comes from the root `.env`; app-local environment files are excluded from images.
 The deployment targets **Qwen 3.0**. Supply its exact installed Ollama tag as
 `SENTRI_MODEL`; this does not silently replace the source-code model defaults.
+
+## Short concurrency benchmark
+
+Run `python3 -B ai-harness/benchmark.py` from the repository root for an excluded
+warm-up and concurrency 1/2/4 rounds within a 15-minute generation budget. See
+[BENCHMARK.md](BENCHMARK.md) for EC2 commands, metrics, and limitations.

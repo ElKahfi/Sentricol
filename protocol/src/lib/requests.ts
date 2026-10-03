@@ -1,6 +1,18 @@
 import type { NextRequest } from 'next/server'
+import { protocolOrigin } from './access-config'
 
 export function isLocalRequest(request: NextRequest, requireOrigin = false) {
+  // Retain the historical name for callers; public mode uses the configured origin.
+  try {
+    const config = protocolOrigin()
+    if (!config.local) {
+      // Coolify preserves Host while forwarding over HTTP. Never trust arbitrary
+      // X-Forwarded-Host/Proto headers as an origin allowlist.
+      if ((request.headers.get('host') ?? request.nextUrl.host) !== config.host) return false
+      const origin = request.headers.get('origin')
+      return origin ? origin === config.origin : !requireOrigin
+    }
+  } catch { return false }
   const host = request.nextUrl.hostname
   const localHosts = ['localhost', '127.0.0.1', '[::1]']
   if (!localHosts.includes(host)) return false

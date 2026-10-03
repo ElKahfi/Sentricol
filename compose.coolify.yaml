@@ -56,7 +56,8 @@ services:
       args:
         APP: protocol
     environment:
-      PROTOCOL_BASE_URL: http://127.0.0.1:3003
+      PROTOCOL_BASE_URL: ${PROTOCOL_BASE_URL:?Set the exact Protocol HTTPS origin in Coolify}
+      PROTOCOL_ALLOWED_EMAILS: ${PROTOCOL_ALLOWED_EMAILS:?Set comma-separated allowed Google email addresses}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
       GMAIL_PYTHON: /app/protocol/.venv/bin/python

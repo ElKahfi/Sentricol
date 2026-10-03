@@ -15,7 +15,8 @@ Parameter count and quantization remain unspecified.
 ## Scope
 
 This is a private pilot setup, not a completed public production deployment.
-All app ports bind only to the host loopback interface; Ollama has no published port.
+The manual pilot's app ports bind only to host loopback; Ollama has no published port.
+The separate Coolify definition publishes no host ports and uses proxy routing.
 Protocol keeps its existing localhost-origin restrictions and in-memory sessions.
 Do not remove those restrictions merely to publish it. Public Protocol needs an
 explicit HTTPS origin policy and an access/session design. Restarts disconnect Gmail.
@@ -77,6 +78,14 @@ Use both files on subsequent GPU-host `up` commands. CPU-only smoke tests can us
 `docker compose up -d --build` without the GPU overlay, but Qwen may run slowly.
 
 ## Coolify deployment
+
+Update: Protocol now supports public HTTPS. The Coolify file requires
+PROTOCOL_BASE_URL and PROTOCOL_ALLOWED_EMAILS; follow the
+[Protocol public setup](../protocol/README.md). Earlier private-only guidance
+below describes the original pilot and is superseded for this deployment path.
+
+Follow [the Coolify operating guide](COOLIFY.md) for the current setup status,
+DNS, environment variables, cutover, restart behavior, and GitHub updates.
 
 Use `compose.coolify.yaml` when Coolify deploys the repository. It combines the
 base application stack with the NVIDIA GPU reservation, publishes no host ports,
@@ -166,9 +175,8 @@ SSH tunnel entrances on the Mac; the app servers and model run on EC2. Closing
 the tunnel does not shut down the containers. See the
 [system architecture](../MD%27s%20Logs/ARCHITECTURE.md) for the request flow.
 
-The active local workspace has an unfinished merge. Resolve it and validate the
-incoming changes before syncing/rebuilding; running images contain the earlier
-successful build, not automatic updates from your local files.
+The previously recorded local merge is resolved. Running images are not updated
+by local file edits; a build/deployment is needed to publish a new code revision.
 
 ## 2026-10-02 — Dispatch request origin behind Docker
 
@@ -180,3 +188,9 @@ that setting retains the request URL origin fallback. Missing or foreign origins
 are rejected; forwarded headers do not establish trust. Authentication remains
 required. Rebuild/recreate Dispatch with the updated Compose file to apply this
 fix; local changes alone do not update the EC2 image. Live chat retesting is pending.
+
+## Short AI concurrency test
+
+See [the harness benchmark guide](../ai-harness/BENCHMARK.md) for running the new
+benchmark inside Dispatch on EC2/Coolify and collecting GPU/CPU metrics. Deploy an
+image containing the script first; the benchmark does not write to Neon.

@@ -7,6 +7,7 @@
   current when changing behavior, deployment setup, or architecture.
 - Deployment context: EC2 g5.xlarge, Neon PostgreSQL, Ollama with Qwen 3.0.
   Confirmed model tag: `huihui_ai/qwen3-abliterated:latest`; do not infer size/quantization.
-- The Docker setup is a private pilot. Preserve Protocol's loopback access policy
-  unless intentionally implementing and testing a public deployment change.
+- Protocol supports loopback development and explicit public HTTPS with
+  PROTOCOL_BASE_URL and PROTOCOL_ALLOWED_EMAILS. Preserve exact origin checks,
+  OAuth state/PKCE and account isolation; public rollout still needs verification.
 - Never commit secrets or copy legacy generated artifacts into this workspace.

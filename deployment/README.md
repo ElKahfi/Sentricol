@@ -50,3 +50,10 @@ Compose runs Deployment with database authentication and the shared Neon
 come from the root `.env`, not an image-bundled `.env.local`. The private pilot
 binds port 3002 to loopback. Public access requires HTTPS and a matching
 `DEPLOYMENT_ORIGIN`. Compose does not migrate or seed the database.
+# Public authentication troubleshooting
+
+Set `DEPLOYMENT_ORIGIN=https://sentriadmin.duckdns.org` exactly in Coolify's
+production environment and recreate the containers. Bare hostnames are invalid.
+See [the investigation and verification guide](../docker/AUTH-TROUBLESHOOTING.md).
+`node scripts/check-database.cjs` now checks employee-account columns too;
+the migration runner accepts runtime DATABASE_URL without a local env file.

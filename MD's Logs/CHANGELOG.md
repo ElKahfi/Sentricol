@@ -1,5 +1,38 @@
 # Changelog
 
+## 2026-10-03 — Protocol public HTTPS adaptation
+
+- Added an exact HTTPS origin policy with preserved loopback development support.
+- Required an explicit Google mailbox allowlist for public login/session use;
+  kept OAuth state, PKCE, secure cookies, and server-memory token isolation.
+- Restricted public model status to authenticated sessions; bounded pending-flow
+  exhaustion returns 429. Rejected-account tokens are revoked best-effort.
+- Added required Coolify runtime variables and documented DNS/Google callback
+  setup. Live public rollout is pending; no token persistence was introduced.
+
+## 2026-10-03 — Authentication diagnostics and proxy cookies
+
+- Reproduced public registration origin rejection and Dispatch's misleading login error.
+- Distinguished request errors, enforced Secure production Dispatch cookies, and
+  added Deployment origin configuration validation and registration error scrolling.
+- Extended read-only schema checks and made the additive migration runner work
+  with container environment variables. No production migration/data changes.
+- Added regression tests: 14 Deployment and 7 focused Dispatch tests pass;
+  both TypeScript checks pass. Documented exact origin corrections and rollout.
+
+## 2026-10-03 — Coolify operations and stable addressing
+
+- Recorded the connected GitHub source, selected main branch and Compose path,
+  and user-confirmed Elastic IP association/DuckDNS update and token rotation.
+- Added `docker/COOLIFY.md` covering first deployment, origins, persistent model
+  storage, cutover, rollback, stop/start recovery, and GitHub automatic updates.
+- Clarified that a stopped EC2 cannot serve its domain, startup reuses existing
+  images, and automatic deployments require configured webhooks and Auto Deploy.
+- Distinguished confirmed setup from pending deployment/inference/recovery tests.
+- Removed stale current-state merge-conflict claims and clarified that Protocol
+  has no host port in the Coolify stack, so its old tunnel needs additional setup.
+- Documentation only; no live deployment or automatic deployment setting changed.
+
 ## 2026-10-02 — Initial preparation
 
 - Established `SENTRI-fresh` as the active workspace for all future work.
@@ -52,3 +85,10 @@ fix; local changes alone do not update the EC2 image. Live chat retesting is pen
 - Reused the existing `sentri_ollama-data` external volume and kept Protocol and
   Ollama without public routes.
 - Documented required public origins, secrets, and the manual-to-Coolify cutover.
+
+## 2026-10-03 — Generation concurrency benchmark
+
+- Added warm-up plus 1/2/4 concurrent generation rounds, a 15-minute budget,
+  timing/throughput/retry reports, failure stop rules, and EC2 instructions.
+- Added offline scheduler tests for overlap, deadlines, and worker failure.
+- Live EC2 benchmarking has not been run.

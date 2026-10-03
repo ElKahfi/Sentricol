@@ -10,6 +10,18 @@ const register = load('src/app/api/auth/register/route.ts')
 const login = load('src/app/api/auth/login/route.ts')
 const session = load('src/app/api/auth/session/route.ts')
 const data = { company: 'Example Ltd', industry: 'Technology', name: 'Example Admin', email: 'ADMIN@example.test', department: 'IT & Security', rank: 'Staff', title: 'Engineer', password: 'SafeTestPassword123!' }
+test('registration rejects malformed configured origin and accepts HTTPS origin behind HTTP proxy', async()=>{
+ const previous=process.env.DEPLOYMENT_ORIGIN
+ const req=()=>new NextRequest('http://0.0.0.0:3000/api/auth/register',{method:'POST',headers:{origin:'https://sentriadmin.duckdns.org','content-type':'application/json'},body:'{}'})
+ try {
+  process.env.DEPLOYMENT_ORIGIN='sentriadmin.duckdns.org'
+  const invalid=await register.POST(req())
+  assert.equal(invalid.status,503); assert.match((await invalid.json()).error,/DEPLOYMENT_ORIGIN/)
+  process.env.DEPLOYMENT_ORIGIN='https://sentriadmin.duckdns.org'
+  const accepted=await register.POST(req())
+  assert.equal(accepted.status,400); assert.doesNotMatch((await accepted.json()).error,/origin/i)
+ } finally { if(previous===undefined) delete process.env.DEPLOYMENT_ORIGIN; else process.env.DEPLOYMENT_ORIGIN=previous }
+})
 function request(route, body, origin = 'http://localhost:3002') {
   return new NextRequest(`http://localhost:3002/api/auth/${route}`, { method: 'POST', headers: { origin, 'content-type': 'application/json' }, body: JSON.stringify(body) })
 }
