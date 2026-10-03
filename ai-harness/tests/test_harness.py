@@ -129,6 +129,26 @@ class HarnessTests(unittest.TestCase):
         self.assertEqual(json.loads(json.dumps(result))['body'], result['body'])
         self.assertEqual(len(calls), 1)
 
+    def test_course_generation_keeps_fixed_objective_and_checks_evidence(self):
+        calls = []
+        def model(prompt, payload, rule, timeout):
+            calls.append(payload['input'])
+            if 'taskId' in payload['input']:
+                return {'taskProposal': {key: value for key, value in fixture('task-proposal').items() if key != 'decision'},
+                        'email': {**fixture('email-content'), 'id': payload['input']['taskId'],
+                                  'recipientEmail': payload['input']['recipientEmail']}}
+            return {'workContext': 'A supplier asks an employee to use a new portal.',
+                    'records': [
+                        {'label': 'Destination', 'detail': 'The link uses a different domain.', 'tag': 'linkDestination', 'relevant': True, 'critical': True},
+                        {'label': 'Calendar', 'detail': 'The team meeting is tomorrow.', 'tag': 'requestContext', 'relevant': False, 'critical': False}],
+                    'explanation': 'The domain mismatch makes this phishing.', 'hints': ['Compare the destination with the known supplier domain.']}
+        result = Harness(model).generate_course(fixture('user'), 'linkDestination')
+        self.assertEqual(result['task']['objective'], 'linkDestination')
+        self.assertEqual(result['email']['id'], result['task']['id'])
+        self.assertEqual(len(result['courseEvidence']['records']), 2)
+        self.assertEqual(calls[0]['objective'], 'linkDestination')
+        self.assertEqual(calls[1]['objective'], 'linkDestination')
+
     def test_generation_can_return_validated_task_with_email_for_dispatch(self):
         def model(prompt, payload, rule, timeout):
             return {'taskProposal': {key: value for key, value in fixture('task-proposal').items() if key != 'decision'},

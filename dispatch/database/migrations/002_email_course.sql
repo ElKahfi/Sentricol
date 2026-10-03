@@ -10,13 +10,26 @@ CREATE TABLE IF NOT EXISTS email_course_configs (
 CREATE TABLE IF NOT EXISTS email_course_cases (
   case_key TEXT PRIMARY KEY,
   company_id INT REFERENCES companies(company_id),
+  requested_for_user_id INT REFERENCES users(user_id),
+  source TEXT NOT NULL DEFAULT 'authored' CHECK (source IN ('authored', 'ai')),
   department_codes TEXT[] NOT NULL DEFAULT '{}',
   rank_codes TEXT[] NOT NULL DEFAULT '{}',
-  review_status TEXT NOT NULL DEFAULT 'draft' CHECK (review_status IN ('draft', 'approved', 'retired')),
+  review_status TEXT NOT NULL DEFAULT 'draft' CHECK (review_status IN ('draft', 'pending_review', 'approved', 'retired', 'rejected')),
   scoring_version TEXT NOT NULL,
   content JSONB NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Older installations already have this table. Preserve existing cases while
+-- extending its review workflow for AI-generated course cases.
+ALTER TABLE email_course_cases ADD COLUMN IF NOT EXISTS requested_for_user_id INT REFERENCES users(user_id);
+ALTER TABLE email_course_cases ADD COLUMN IF NOT EXISTS source TEXT NOT NULL DEFAULT 'authored';
+ALTER TABLE email_course_cases DROP CONSTRAINT IF EXISTS email_course_cases_review_status_check;
+ALTER TABLE email_course_cases ADD CONSTRAINT email_course_cases_review_status_check
+  CHECK (review_status IN ('draft', 'pending_review', 'approved', 'retired', 'rejected'));
+ALTER TABLE email_course_cases DROP CONSTRAINT IF EXISTS email_course_cases_source_check;
+ALTER TABLE email_course_cases ADD CONSTRAINT email_course_cases_source_check
+  CHECK (source IN ('authored', 'ai'));
 
 CREATE TABLE IF NOT EXISTS email_course_enrollments (
   enrollment_id BIGSERIAL PRIMARY KEY,
@@ -50,3 +63,4 @@ CREATE TABLE IF NOT EXISTS email_course_rewards (
 );
 
 CREATE INDEX IF NOT EXISTS email_course_catalog_audience ON email_course_cases(company_id, review_status);
+CREATE INDEX IF NOT EXISTS email_course_ai_pool ON email_course_cases(requested_for_user_id, review_status, source);

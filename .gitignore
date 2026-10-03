@@ -10,3 +10,4 @@ __pycache__/
 
 # Mailbox-specific sender approvals
 protocol/config/trusted-senders.local.json
+protocol/.sentri/

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { ModelStatus } from '@/lib/contracts'
 import { emptyQueue, labels } from '@/lib/inbox-queue'
 import { InboxMonitor, type MonitorView } from '@/lib/inbox-monitor'
+import type { CompanyLink } from '@/lib/company-monitoring'
 
 type Account = { configured: boolean; connected: boolean; email?: string; baseUrl: string; redirectUri: string }
 const initialView: MonitorView = { data: emptyQueue(), activeId: '', syncing: false, ready: false, error: '', loginRequired: false, waiting: false }
@@ -14,6 +15,7 @@ export default function Home() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [sound, setSound] = useState(false)
+  const [companyLink, setCompanyLink] = useState<CompanyLink | null>(null)
   const monitor = useRef<InboxMonitor | null>(null)
   const audio = useRef<AudioContext | null>(null)
   const soundEnabled = useRef(false)
@@ -45,6 +47,20 @@ export default function Home() {
     void checkStatus()
     return () => { controller.abort() }
   }, [])
+  useEffect(() => {
+    if (!account?.connected) { setCompanyLink(null); return }
+    const controller = new AbortController()
+    let timer:ReturnType<typeof setTimeout>
+    async function refreshCompany() {
+      try {
+        const link = await api<CompanyLink>('/api/company', {signal:controller.signal})
+        if (!controller.signal.aborted) setCompanyLink(link)
+      } catch { if (!controller.signal.aborted) setCompanyLink({configured:true,linked:false,pending:0,message:'Company monitoring is unavailable. Alerts will retry while this app is open.'}) }
+      finally { if (!controller.signal.aborted) timer=setTimeout(refreshCompany,30000) }
+    }
+    void refreshCompany()
+    return () => { controller.abort(); clearTimeout(timer) }
+  }, [account?.connected,account?.email])
   useEffect(() => {
     if (!account?.connected || !account.email) return
     const worker = new InboxMonitor(account.email, setView, () => {
@@ -103,6 +119,7 @@ export default function Home() {
     {(error || view.error) && <p className="error" role="alert">{error || view.error}</p>}
     {view.loginRequired && <p className="error" role="status">Gmail access expired. Reconnect to continue. Saved results remain on this device.</p>}
     {account?.connected ? <>
+      <section className="panel company-link" role="status"><h2>{companyLink?.linked ? `COMPANY / ${companyLink.company}` : 'COMPANY MONITORING'}</h2><p className="muted">{companyLink?.message || 'Checking company connection…'}{companyLink?.pending ? ` ${companyLink.pending} alert(s) pending delivery.` : ''}</p><p className="privacy">Your company admin receives your risk level and detection time. Email subjects, senders, bodies, and attachments are not shared with Deployment.</p></section>
       <section className="monitor-bar panel"><div role="status"><h2>{view.waiting ? 'ANOTHER TAB IS PROCESSING THIS INBOX' : view.activeId ? 'ANALYZING EMAIL' : view.syncing ? 'CHECKING INBOX' : view.ready ? 'INBOX MONITORING' : 'OPENING ENCRYPTED INBOX'}</h2><p className="muted">{completed} of {view.data.entries.length} assessed{failed ? ` · ${failed} need investigation after a processing error` : ''}. Checks every 30 seconds while open.</p></div><button aria-pressed={sound} onClick={toggleSound}>{sound ? 'Mute alert sounds' : 'Enable alert sounds'}</button></section>
       {risky.length > 0 && <div className="risk-notice" role="status"><strong>{risky.length} Risky {risky.length === 1 ? 'email' : 'emails'} detected.</strong> Verify independently before acting. <button onClick={() => setSelectedId(risky[0].summary.id)}>Review risky email</button></div>}
       <div className="mail-workspace"><section className="panel inbox"><div className="panel-heading"><h2>INBOX / LATEST 20</h2><button disabled={view.syncing || view.waiting || view.loginRequired} onClick={() => void monitor.current?.sync()}>Refresh</button></div>

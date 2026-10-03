@@ -28,6 +28,8 @@ Local Gmail phishing-analysis app. Google handles login; Python calls the Gmail 
 
 Use `127.0.0.1` consistently: `localhost` and `127.0.0.1` are different OAuth redirect addresses. If you change ports, update the app's port, PROTOCOL_BASE_URL, and Google's redirect URI together.
 
+For the public Protocol deployment, set `PROTOCOL_BASE_URL=https://sentriprotocol.duckdns.org` on the deployed server and add `https://sentriprotocol.duckdns.org/api/gmail/callback` to the **same Web application OAuth client** under Google Auth Platform → Clients → Authorized redirect URIs. Keep the local callback as an additional URI for development. Google compares the scheme, host, path and trailing slash exactly. If the Google app is still in **Testing**, each external employee who signs in must also be listed under Audience → Test users. Changing the redirect URI alone does not grant unlisted test users access.
+
 ## Run
 
 From `protocol/`:
@@ -131,3 +133,11 @@ Protocol shows five user-facing categories. **Safe** means an exact approved sen
 - Service failures show Requires investigation with the failure reason, allow other messages to continue, and retry at most three times with backoff. An unreadable body or invalid model evidence produces an inconclusive result. Neither is treated as Safe.
 - Enable alert sounds once per page session using the sound button (browser audio permission requires interaction). The first Risky result from the initial batch sounds once; the visible count updates as the rest finish. Each subsequently arriving Risky email sounds once. Alert history is committed before sound playback and is encrypted alongside results. Alerts encountered while muted are not replayed later. Up to 1,000 previously alerted IDs are retained to prevent replay without retaining old email content.
 - Labels appear inside Protocol only; Gmail messages and labels are not modified. The API scope remains `gmail.readonly`.
+
+## Deployment monitoring
+
+Set `DEPLOYMENT_URL` to your Deployment server and `PROTOCOL_DEPLOYMENT_SECRET` to the same server-held secret configured in Deployment, then restart. Connect Gmail using the exact work email on an active employee account. Protocol displays the company-link status and sends a heartbeat every 30 seconds while signed in.
+
+New suspicious/high-risk analyses send metadata alerts to the company admin: employee identity, risk level, detection time, and an HMAC message identifier. Email subjects, sender addresses, body text, attachments, explanations and Google tokens are not shared with Deployment. Previously cached analyses are not automatically backfilled.
+
+Failed alerts persist in `.sentri/monitoring-outbox.enc`, encrypted using AES-256-GCM, and retry on subsequent heartbeats. Keep this directory private, outside version control, and preserve the service secret until the queue drains. Use one Protocol process per data directory. This monitoring does not modify Gmail and runs while Protocol is open and connected.

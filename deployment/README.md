@@ -41,3 +41,17 @@ Dispatch access. Real Dispatch no longer accepts the old hardcoded `admin` login
 Checks: `pnpm test`, `pnpm typecheck`, `pnpm build`, `pnpm db:check`, and
 `pnpm test:database`. Database tests use temporary tables and roll back; no real
 employee accounts are created by the tests.
+
+## Company monitoring dashboard
+
+`/admin` includes Overview, Employees, Dispatch Progress, and Protocol Alerts. Employee creation, CSV import and Dispatch account preparation use the existing employee workflow. Monitoring refreshes every 30 seconds. Regular practice shows EXP and completed tasks; an enrolled four-stage course also shows course percentage, phase and status. All queries derive company ownership from the signed-in administrator.
+
+Run `npm run db:monitoring` to add the metadata tables. Deployment and Dispatch must use the same company database. Protocol sends signed-service requests to Deployment; put the same random `PROTOCOL_DEPLOYMENT_SECRET` (at least 32 characters) in both apps' `.env.local`, and set `DEPLOYMENT_URL` in Protocol. Keep the secret server-side. Use HTTPS outside localhost. Restart both apps after changing environment settings.
+
+An employee connects Gmail in Protocol using the exact work email on their active employee/Dispatch account. This verified Google identity is matched server-side; the client cannot choose a company or employee ID. Risk notifications contain only a keyed message identifier, employee identity, severity, and detection time. No subject, sender, body, attachment, Gmail token, or model explanation is sent to Deployment.
+
+Protocol retries failed deliveries from an encrypted local outbox while open and signed in. One message creates one alert even when delivery repeats. The dashboard considers a connection online for two minutes after a heartbeat. Acknowledging an alert records admin review; it does not label the email safe or change Gmail. Existing locally cached analyses are not backfilled automatically; new analyses send alerts.
+
+The current outbox supports one Protocol server process per local data directory; a multi-instance deployment needs a coordinated queue. Preserve the service secret while pending events exist because it encrypts the outbox and derives stable event identifiers.
+
+Checks: `npm test`; `node --test tests/monitoring-database.test.cjs` runs the integration checks inside a rolled-back transaction with temporary tables only.

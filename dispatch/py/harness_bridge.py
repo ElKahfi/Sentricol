@@ -28,6 +28,8 @@ def main():
         emit({'type': 'done'})
     elif request['operation'] == 'generate':
         emit(harness.generate(request['profile'], with_task=True))
+    elif request['operation'] == 'generate_course':
+        emit(harness.generate_course(request['profile'], request['objective']))
     else:
         raise ValueError('Unsupported harness operation')
 

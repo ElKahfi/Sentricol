@@ -68,3 +68,8 @@
 .admin-progress-config input { width:100%; min-width:0; padding:9px 11px; border:1px solid #777d68; background:#e0ddca; color:#252b24; font:15px 'Courier New',monospace; }
 .admin-progress-config small { font:13px 'Courier New',monospace; line-height:1.4; }
 .admin-progress-error { color:#8b3123; }
+.admin-review-case { display:grid; gap:8px; padding:14px; border:1px solid #858875; font:14px 'Courier New',monospace; }
+.admin-review-case>p { white-space:pre-wrap; max-height:140px; overflow:auto; margin:0; }
+.admin-review-case details { overflow-wrap:anywhere; }
+.admin-review-case ul { padding-left:20px; }
+.admin-review-case .admin-progress-actions { margin:4px 0 0; }

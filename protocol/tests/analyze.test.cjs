@@ -5,6 +5,14 @@ const createLoader = require('./load-typescript.cjs')
 const origin = 'http://127.0.0.1:3003'
 const assessment = { verdict: 'low-risk', summary: 'No obvious warning signs.', findings: [], recommendations: ['Verify unexpected requests.'] }
 const email = { id: 'abc123', sender: '', replyTo: '', subject: '', body: 'Meeting moved to 3 PM.', notes: [] }
+test('only risky results report metadata using the verified Gmail identity', async () => {
+  const reports=[]
+  for (const verdict of ['low-risk','inconclusive','spam','suspicious','high-risk']) {
+    const {POST}=route(async()=>({...assessment,verdict}),{'@/lib/company-monitoring':{reportRisk:async(...args)=>reports.push(args)}})
+    assert.equal((await POST(request({messageId:'abc123'}))).status,200)
+  }
+  assert.deepEqual(reports,[['employee@example.test','abc123','suspicious'],['employee@example.test','abc123','high-risk']])
+})
 function request(body, headers = {}) {
   return new NextRequest(origin + '/api/analyze', { method: 'POST', headers: { origin, 'content-type': 'application/json', ...headers }, body: typeof body === 'string' ? body : JSON.stringify(body) })
 }

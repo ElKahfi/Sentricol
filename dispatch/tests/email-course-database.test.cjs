@@ -68,10 +68,10 @@ test('PostgreSQL course transactions: resume, concurrency, replay, rollback, own
     const rules = load('lib/emailCourse.ts')
     const { executeCourseCommand } = load('lib/emailCourseStore.ts')
     const command = input => executeCourseCommand(input, 'course-test-learner')
-    for (const c of catalog) await setup.query('INSERT INTO email_course_cases(case_key, company_id, review_status, scoring_version, content) VALUES($1,1,$2,$3,$4)', [c.id, 'approved', rules.SCORING_VERSION, c])
+    for (const c of catalog) await setup.query("INSERT INTO email_course_cases(case_key, company_id, requested_for_user_id, source, review_status, scoring_version, content) VALUES($1,1,1,'ai',$2,$3,$4)", [c.id, 'approved', rules.SCORING_VERSION, c])
     // A mismatched-company case must not be selected even when approved.
     const otherCase = structuredClone(catalog[0]); otherCase.id = 'foreign'; otherCase.campaignId = 'foreign'
-    await setup.query('INSERT INTO email_course_cases(case_key, company_id, review_status, scoring_version, content) VALUES($1,2,$2,$3,$4)', ['foreign', 'approved', rules.SCORING_VERSION, otherCase])
+    await setup.query("INSERT INTO email_course_cases(case_key, company_id, requested_for_user_id, source, review_status, scoring_version, content) VALUES($1,2,1,'ai',$2,$3,$4)", ['foreign', 'approved', rules.SCORING_VERSION, otherCase])
 
     const [first, second] = await Promise.all([command({ action: 'resume', userCode: 'other-learner' }), command({ action: 'resume' })])
     assert.equal(first.course.active.id, second.course.active.id)

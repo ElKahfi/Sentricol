@@ -91,12 +91,14 @@ class Harness:
         self.start()
         return self._plan(prepare_profile(profile, organization), documents)
 
-    def generate(self, profile, documents=None, organization=None, task=None, with_task=False):
+    def generate(self, profile, documents=None, organization=None, task=None, with_task=False, objective=None):
         self.start()
         prepared = prepare_profile(profile, organization)
         if task is None:
             user = prepared['user']
-            objective = objective_for(user)
+            objective = objective or objective_for(user)
+            if objective not in SCORING['knowledgeWeights']:
+                raise ValueError('Unknown generation objective')
             task_id = str(uuid.uuid4())
             query = re.sub(r'([A-Z])', r' \1', objective) + ' ' + user['department'] + ' ' + user['position']
             sources = retrieve(query, user, documents)
@@ -130,6 +132,22 @@ class Harness:
             'taskSpec': task, 'recipientEmail': recipient_email, 'sources': sources
         }, 'email-content', lambda value: validate_email(value, task, recipient_email))
         return {'task': task, 'email': email} if with_task else email
+
+    def generate_course(self, profile, objective, documents=None):
+        generated = self.generate(profile, documents=documents, with_task=True, objective=objective)
+        task, email = generated['task'], generated['email']
+        def check_evidence(value):
+            records = value['records']
+            if not 2 <= len(records) <= 6 or not any(r['relevant'] and r['tag'] == objective for r in records):
+                raise ValueError('Course evidence must assess the selected objective')
+            if not any(r['critical'] for r in records) or any(r['critical'] and not r['relevant'] for r in records):
+                raise ValueError('Critical evidence must be relevant')
+            if not any(not r['relevant'] for r in records):
+                raise ValueError('Include one neutral distractor record')
+            if any(token in r['detail'].lower() for r in records for token in ('this is phishing', 'this is legitimate', 'the correct answer')):
+                raise ValueError('Public evidence reveals the answer')
+        evidence = self.checked('course-evidence', {'task': task, 'email': email, 'objective': objective}, 'course-evidence', check_evidence)
+        return {**generated, 'courseEvidence': evidence}
 
     def chat(self, profile, question, documents=None, organization=None, history=None):
         self.start()

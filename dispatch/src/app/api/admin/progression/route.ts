@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { localAdminPlayer } from '@/lib/player-auth'
 import { getDatabase, withTransaction } from '@/lib/db'
-import { courseView, createCourse, DEFAULT_CONFIG, skipCourseDifficulty, skipCourseEvent, validateConfig, type CourseConfig, type CourseState } from '@/lib/emailCourse'
+import { courseView, createCourse, DEFAULT_CONFIG, PS_KNOWLEDGE_WEIGHTS, skipCourseDifficulty, skipCourseEvent, validateConfig, type CourseConfig, type CourseState } from '@/lib/emailCourse'
 import { randomUUID } from 'node:crypto'
 
 const noStore = { 'Cache-Control': 'no-store' }
@@ -59,6 +59,8 @@ export async function POST(request: NextRequest) {
           phases: input.phases as CourseConfig['phases'],
         }
         validateConfig(config)
+        if (Object.values(config.phases).flat().some(objective => !Object.hasOwn(PS_KNOWLEDGE_WEIGHTS, objective)))
+          throw new Error('AI course objectives must use an email knowledge tag.')
         // A new plan starts a new demo course, so old allocations and answer
         // ledgers cannot conflict with the edited objectives.
         await client.query('DELETE FROM email_course_rewards WHERE enrollment_id=$1', [row.enrollment_id])

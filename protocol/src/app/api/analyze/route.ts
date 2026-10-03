@@ -6,6 +6,7 @@ import { runGmail, type GmailMessage } from '@/lib/gmail'
 import { getSession } from '@/lib/gmail-session'
 import { gmailError, privateHeaders as headers } from '@/lib/gmail-api'
 import { isLocalRequest, readBoundedJson } from '@/lib/requests'
+import { reportRisk } from '@/lib/company-monitoring'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 let busy = false
@@ -38,6 +39,10 @@ export async function POST(request: NextRequest) {
     // A naturally expiring access token does not discard a completed analysis.
     // Explicit disconnect still invalidates it.
     if (session.revoked) return NextResponse.json({ error: 'Gmail session ended.' }, { status: 401, headers })
+    if (analysis.verdict === 'suspicious' || analysis.verdict === 'high-risk') {
+      try { await reportRisk(session.email,messageId,analysis.verdict) }
+      catch { console.error('Protocol risk alert could not be queued for company monitoring.') }
+    }
     return NextResponse.json({ message, analysis, notes: message.notes, skipped: false, senderCheck: message.senderCheck }, { headers })
   } catch (error) { return gmailError(error, request) }
   finally { if (claimed) busy = false }
