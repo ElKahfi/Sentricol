@@ -36,6 +36,14 @@ export async function playerForToken(token: string | undefined): Promise<Player 
   return result.rows[0] ? publicPlayer(result.rows[0]) : null
 }
 export async function currentPlayer() { return playerForToken((await cookies()).get(SESSION_COOKIE)?.value) }
+export async function localAdminPlayer() {
+  if (process.env.NODE_ENV !== 'development') return null
+  const token = (await cookies()).get(SESSION_COOKIE)?.value
+  const identity = sessionIdentity(token)
+  if (!identity?.localAdminTools) return null
+  const player = await playerForToken(token)
+  return player?.userCode === 'usr_0001' ? player : null
+}
 export async function changePassword(player: Player, current: string, next: string) {
   const result = await getDatabase().query<Account>(select+' AND u.user_id=$1 AND u.auth_version=$2',[player.userId,player.version])
   const account = result.rows[0]

@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
         (request.nextUrl.hostname === 'localhost' || request.nextUrl.hostname === '127.0.0.1') &&
         email === 'admin' && input.password === '123') {
       const demo = await loginLocalDemoPlayer()
-      return demo ? sessionResponse(demo,request) : json({error:'Demo player is missing. Seed the Dispatch database first.'},503)
+      return demo ? sessionResponse(demo,request,true) : json({error:'Demo player is missing. Seed the Dispatch database first.'},503)
     }
     const player=await loginPlayer(email,input.password)
     return player ? sessionResponse(player,request) : json({error:'Work email, username, or password is incorrect.'},401)

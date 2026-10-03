@@ -34,7 +34,7 @@ for (const attempt of [1, 2, 3, 4]) test(`regular email scoring accepts submissi
 
 test('the retained course API does not advance enrollments while disabled', async () => {
   const load = createLoader({
-    '@/lib/player-auth': { currentPlayer: async () => ({userId:'1',userCode:'test-user'}) },
+    '@/lib/player-auth': { currentPlayer: async () => ({userId:'1',userCode:'test-user'}), localAdminPlayer: async () => null },
     'next/server': { NextResponse: { json: (body, options) => ({ body, status: options?.status ?? 200 }) } },
     '@/lib/db': { isDatabaseConfigured: () => { throw new Error('Should not access the database') } },
     '@/lib/emailCourseStore': { executeCourseCommand: () => { throw new Error('Should not advance a course') } },

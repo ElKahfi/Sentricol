@@ -1,4 +1,4 @@
-import { currentPlayer } from '@/lib/player-auth'
+import { currentPlayer, localAdminPlayer } from '@/lib/player-auth'
 import { NextResponse } from 'next/server'
 import { isDatabaseConfigured } from '@/lib/db'
 import { CourseError } from '@/lib/emailCourse'
@@ -8,7 +8,7 @@ import { TRAINING_CONFIG } from '@/lib/trainingConfig'
 export async function POST(request: Request) {
   const player = await currentPlayer()
   if (!player) return NextResponse.json({ error: 'Please sign in.' }, { status: 401 })
-  if (!TRAINING_CONFIG.phaseProgressionEnabled) return NextResponse.json({ error: 'Phase progression is currently disabled. Use regular task practice.' }, { status: 409 })
+  if (!TRAINING_CONFIG.phaseProgressionEnabled && !await localAdminPlayer()) return NextResponse.json({ error: 'Phase progression is currently disabled. Use regular task practice.' }, { status: 409 })
   if (!isDatabaseConfigured()) return NextResponse.json({ error: 'The training database is not configured.' }, { status: 503 })
   try {
     const input: unknown = await request.json()

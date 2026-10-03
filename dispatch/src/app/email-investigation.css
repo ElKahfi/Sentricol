@@ -63,6 +63,15 @@
 .email-evidence-list { flex: 1; min-height: 0; overflow-y: auto; }
 .email-evidence-item { display: grid; grid-template-columns: 40px minmax(0,1fr) 21px; gap: 10px; padding: 7px 12px; border-bottom: 1px solid #99978270; }
 .email-evidence-item.is-selected { background: #9da88733; }
+.email-supporting-records { padding: 12px; border-top: 2px solid #858671; }
+.email-supporting-records>h3 { font: 21px/1.1 var(--font-mono); margin-bottom: 5px; }
+.email-supporting-records>p { font-size: 14px; line-height: 1.3; margin-bottom: 10px; }
+.email-supporting-record { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 10px; border: 1px solid #96917a; margin-bottom: 8px; cursor: pointer; }
+.email-supporting-record.is-selected { background: #9da88733; }
+.email-supporting-record span { min-width: 0; display: grid; gap: 4px; }
+.email-supporting-record strong { font: 18px/1.1 var(--font-mono); text-transform: uppercase; }
+.email-supporting-record small { font-size: 14px; line-height: 1.3; overflow-wrap: anywhere; }
+.email-supporting-record input { flex: none; }
 .evidence-icon { width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid #8d907d80; border-radius: 50%; color: #52584b; background: #999b8626; }
 .evidence-copy h3 { font: 22px/1.05 var(--font-mono); text-transform: uppercase; margin-bottom: 2px; }
 .evidence-copy p { font-size: 15px; line-height: 1.2; overflow-wrap: anywhere; }

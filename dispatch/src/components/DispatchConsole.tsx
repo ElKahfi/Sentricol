@@ -46,8 +46,8 @@ const previewQueue: DispatchItem[] = [
   { id: 'preview-document', type: 'data-classification', priority: 'MEDIUM', timestamp: 0, payload: { ...mockDataClassifications[0], id: 'preview-document', timestamp: '09:00' } },
 ]
 
-export default function DispatchConsole({ designPreview = false, player }: { designPreview?: boolean; player?: import('@/lib/player-auth').Player }) {
-  const progressionEnabled = TRAINING_CONFIG.phaseProgressionEnabled && !designPreview
+export default function DispatchConsole({ designPreview = false, player, adminTools = false, courseModeEnabled = false }: { designPreview?: boolean; player?: import('@/lib/player-auth').Player; adminTools?: boolean; courseModeEnabled?: boolean }) {
+  const progressionEnabled = (TRAINING_CONFIG.phaseProgressionEnabled || courseModeEnabled) && !designPreview
   const emailCourse = useEmailCourse(progressionEnabled)
   const courseRef = useRef(emailCourse.course)
   courseRef.current = emailCourse.course
@@ -181,7 +181,12 @@ export default function DispatchConsole({ designPreview = false, player }: { des
     })
   }, [emailCourse.course])
 
-  useEffect(() => { setCourseEvidence([]); setShowDecisionModal(false) }, [emailCourse.course?.active?.id])
+  useEffect(() => {
+    setCourseEvidence([])
+    setShowDecisionModal(false)
+    setInvestigationList(prev => prev.map(item => ({ ...item, checked: false })))
+    setGameState(prev => ({ ...prev, investigatedCategories: new Set() }))
+  }, [emailCourse.course?.active?.id])
   useEffect(() => { databaseExhaustedRef.current = false }, [emailCourse.course?.phase])
   useEffect(() => {
     if (progressionEnabled) return
@@ -740,11 +745,11 @@ export default function DispatchConsole({ designPreview = false, player }: { des
             <TaskDetailsPanel selectedQueueItem={gameState.dispatchQueue.find(q => q.id === selectedQueueItemId) || null} onStartTask={handleStartQueueTask} />
           ) : gameState.currentTaskType === 'email' ? (
             <InvestigationPanel
-              investigationList={!designPreview && emailCourse.course?.active ? emailCourse.course.active.public.evidence.map(e => ({
-                id: e.id, label: e.label, description: e.detail, checked: courseEvidence.includes(e.id), hasEvidence: true,
-              })) : investigationList}
+              investigationList={investigationList}
               onMakeDecision={() => setShowDecisionModal(true)}
-              onCheckboxChange={!designPreview && emailCourse.course?.active ? id => setCourseEvidence(prev => prev.includes(id) ? prev.filter(e => e !== id) : [...prev, id]) : handleCheckboxChange}
+              onCheckboxChange={handleCheckboxChange}
+              supportingRecords={!designPreview && emailCourse.course?.active ? emailCourse.course.active.public.evidence.map(e => ({...e, checked: courseEvidence.includes(e.id)})) : undefined}
+              onRecordChange={id => setCourseEvidence(prev => prev.includes(id) ? prev.filter(e => e !== id) : [...prev, id])}
               onVerify={() => setShowContactModal(true)}
               disabled={progressionEnabled && (!emailCourse.course?.active || emailCourse.busy || Boolean(emailCourse.error) || Boolean(emailCourse.course.active.feedback))}
               attemptLabel={emailCourse.course?.active ? `${emailCourse.course.active.submissionsUsed}/${emailCourse.course.active.attemptLimit} USED` : undefined}
@@ -838,6 +843,7 @@ export default function DispatchConsole({ designPreview = false, player }: { des
 
       {/* Settings Modal */}
       <SettingsModal
+        adminTools={adminTools}
         accountName={player?.name}
         accountEmail={player?.email}
         isOpen={showSettings}
