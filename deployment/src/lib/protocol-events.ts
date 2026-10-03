@@ -1,9 +1,17 @@
 import 'server-only'
 import { timingSafeEqual } from 'node:crypto'
-import { transaction } from './db'
+import { database, transaction } from './db'
 import { AuthError } from './registration'
 
 type Event = {type:'heartbeat'|'risk'; email:string; eventKey?:string; severity?:'suspicious'|'high-risk'; detectedAt?:string}
+export async function protocolEmployee(email: string) {
+  const rows=await database().query<{employee_id:number;company_id:number;company_name:string}>(
+    `SELECT e.employee_id,d.company_id,c.company_name FROM employees e JOIN departments d USING(department_id)
+     JOIN companies c USING(company_id) JOIN users u USING(employee_id)
+     WHERE lower(e.work_email)=$1 AND lower(u.email)=$1 AND e.is_active=true AND u.role IN ('player','admin') LIMIT 2`,[email.trim().toLowerCase()])
+  if (rows.rows.length!==1) throw new AuthError('This Gmail address is not linked to an active employee account.',404)
+  return rows.rows[0]
+}
 export function authorizeProtocol(header:string|null) {
   const secret = process.env.PROTOCOL_DEPLOYMENT_SECRET
   if (!secret || secret.length < 32) throw new AuthError('Protocol monitoring is not configured.',503)
@@ -28,7 +36,7 @@ export async function recordProtocolEvent(event:Event) {
     const rows=await client.query<{employee_id:number;company_id:number;company_name:string}>(
       `SELECT e.employee_id,d.company_id,c.company_name FROM employees e JOIN departments d USING(department_id)
        JOIN companies c USING(company_id) JOIN users u USING(employee_id)
-       WHERE lower(e.work_email)=$1 AND lower(u.email)=$1 AND e.is_active=true AND u.role='player' LIMIT 2`,[event.email])
+       WHERE lower(e.work_email)=$1 AND lower(u.email)=$1 AND e.is_active=true AND u.role IN ('player','admin') LIMIT 2`,[event.email])
     if (rows.rows.length!==1) throw new AuthError('This Gmail address is not linked to an active employee account.',404)
     const employee=rows.rows[0]
     await client.query(`INSERT INTO protocol_connections(employee_id,company_id) VALUES($1,$2)

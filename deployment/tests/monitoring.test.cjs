@@ -21,10 +21,34 @@ test('Protocol records derive employee and company from active account lookup, w
   queries.push({sql,args});return sql.includes('SELECT e.employee_id')?{rows:[{employee_id:12,company_id:7,company_name:'Example'}]}:{rows:[]}
  }})}})('src/lib/protocol-events.ts')
  await recordProtocolEvent({...event,email:'employee@example.test'})
- assert.match(queries[0].sql,/e.is_active=true AND u.role='player'/)
+ assert.match(queries[0].sql,/e.is_active=true AND u.role IN \('player','admin'\)/)
  assert.deepEqual(queries[1].args,[12,7])
  assert.deepEqual(queries[2].args,[event.eventKey,7,12,'high-risk',event.detectedAt])
  assert.match(queries[2].sql,/ON CONFLICT\(event_key\) DO NOTHING/)
+})
+test('Protocol sign-in checks only the verified email against an active Deployment account',async()=>{
+ let seen
+ const {POST}=loader({
+  '@/lib/protocol-events':{
+   authorizeProtocol:()=>{},
+   protocolEmployee:async email=>{seen=email;return {employee_id:3,company_id:2,company_name:'Example'}},
+  },
+ })('src/app/api/protocol/access/route.ts')
+ const response=await POST(new NextRequest('http://localhost:3002/api/protocol/access',{method:'POST',headers:{authorization:'Bearer test','content-type':'application/json'},body:JSON.stringify({email:'Employee@Example.test'})}))
+ assert.equal(response.status,200)
+ assert.equal(seen,'Employee@Example.test')
+ assert.deepEqual(await response.json(),{allowed:true,company:'Example'})
+ assert.equal((await POST(new NextRequest('http://localhost:3002/api/protocol/access',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({email:'employee@example.test',companyId:99})}))).status,400)
+})
+test('Protocol account lookup requires a matching active Deployment user',async()=>{
+ let query,rows=[]
+ const {protocolEmployee}=loader({'./db':{database:()=>({query:async(sql,args)=>{query={sql,args};return {rows}}})}})('src/lib/protocol-events.ts')
+ await assert.rejects(()=>protocolEmployee('outsider@example.test'),{status:404})
+ rows=[{employee_id:3,company_id:2,company_name:'Example'}]
+ assert.deepEqual(await protocolEmployee('Worker@Example.test'),rows[0])
+ assert.deepEqual(query.args,['worker@example.test'])
+ assert.match(query.sql,/lower\(e.work_email\)=\$1 AND lower\(u.email\)=\$1/)
+ assert.match(query.sql,/e.is_active=true AND u.role IN \('player','admin'\)/)
 })
 test('Monitoring endpoints require admin identity and ignore client company selection',async()=>{
  let seen

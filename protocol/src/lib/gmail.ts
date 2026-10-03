@@ -7,8 +7,9 @@ export type Inbox = { messages: MailSummary[]; nextPageToken: string }
 
 export function gmailConfig() {
   const base = new URL(process.env.PROTOCOL_BASE_URL || 'http://127.0.0.1:3003')
-  if (!['127.0.0.1', 'localhost', '[::1]'].includes(base.hostname) || !['http:', 'https:'].includes(base.protocol) || base.username || base.password || base.pathname !== '/' || base.search || base.hash) throw new Error('Protocol base URL must be a local origin.')
-  return { baseUrl: base.origin, redirectUri: `${base.origin}/api/gmail/callback`, configured: Boolean(process.env.GOOGLE_CLIENT_ID?.trim() && process.env.GOOGLE_CLIENT_SECRET?.trim()) }
+  const local=['127.0.0.1', 'localhost', '[::1]'].includes(base.hostname)
+  if ((base.protocol!=='https:' && !(local && base.protocol==='http:')) || base.username || base.password || base.pathname !== '/' || base.search || base.hash) throw new Error('Protocol base URL must use HTTPS or a local HTTP origin.')
+  return { baseUrl: base.origin, redirectUri: `${base.origin}/api/gmail/callback`, configured: Boolean(process.env.GOOGLE_CLIENT_ID?.trim() && process.env.GOOGLE_CLIENT_SECRET?.trim() && process.env.DEPLOYMENT_URL?.trim() && (process.env.PROTOCOL_DEPLOYMENT_SECRET?.length ?? 0)>=32) }
 }
 
 export function runGmail<T>(command: 'authorize' | 'exchange' | 'list' | 'get' | 'revoke', input: unknown, signal?: AbortSignal): Promise<T> {

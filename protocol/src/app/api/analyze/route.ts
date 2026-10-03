@@ -5,15 +5,17 @@ import { runHarness } from '@/lib/harness'
 import { runGmail, type GmailMessage } from '@/lib/gmail'
 import { getSession } from '@/lib/gmail-session'
 import { gmailError, privateHeaders as headers } from '@/lib/gmail-api'
-import { isLocalRequest, readBoundedJson } from '@/lib/requests'
+import { isProtocolRequest, readBoundedJson } from '@/lib/requests'
 import { reportRisk } from '@/lib/company-monitoring'
+import { authorizedSession } from '@/lib/authorized-session'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 let busy = false
 export async function POST(request: NextRequest) {
-  if (!isLocalRequest(request, true)) return NextResponse.json({ error: 'Invalid request origin.' }, { status: 403, headers })
-  const session = getSession(request)
-  if (!session) return NextResponse.json({ error: 'Connect your Gmail account first.' }, { status: 401, headers })
+  if (!isProtocolRequest(request, true)) return NextResponse.json({ error: 'Invalid request origin.' }, { status: 403, headers })
+  const access=await authorizedSession(request)
+  if (access.response) return access.response
+  const session=access.session!
   const mailbox = request.headers.get('x-protocol-mailbox')
   if (mailbox && mailbox.toLowerCase() !== session.email.toLowerCase()) return NextResponse.json({ error: 'Gmail account changed in another tab. Reconnect this inbox.' }, { status: 409, headers })
   if (!request.headers.get('content-type')?.startsWith('application/json')) return NextResponse.json({ error: 'Send a JSON request.' }, { status: 415, headers })

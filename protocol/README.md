@@ -1,6 +1,6 @@
 # SENTRI Protocol
 
-Local Gmail phishing-analysis app. Google handles login; Python calls the Gmail API. Connecting Gmail starts automatic analysis of the 20 newest Inbox messages by the shared Qwen harness.
+Gmail phishing-analysis app. Google handles login; Python calls the Gmail API. Only Google accounts whose exact Gmail address matches an active account created in SENTRI Deployment can open an inbox. Connecting Gmail starts automatic analysis of the 20 newest Inbox messages by the shared Qwen harness.
 
 ## Google setup (first time)
 
@@ -28,7 +28,9 @@ Local Gmail phishing-analysis app. Google handles login; Python calls the Gmail 
 
 Use `127.0.0.1` consistently: `localhost` and `127.0.0.1` are different OAuth redirect addresses. If you change ports, update the app's port, PROTOCOL_BASE_URL, and Google's redirect URI together.
 
-For the public Protocol deployment, set `PROTOCOL_BASE_URL=https://sentriprotocol.duckdns.org` on the deployed server and add `https://sentriprotocol.duckdns.org/api/gmail/callback` to the **same Web application OAuth client** under Google Auth Platform → Clients → Authorized redirect URIs. Keep the local callback as an additional URI for development. Google compares the scheme, host, path and trailing slash exactly. If the Google app is still in **Testing**, each external employee who signs in must also be listed under Audience → Test users. Changing the redirect URI alone does not grant unlisted test users access.
+For the public Protocol deployment, set `PROTOCOL_BASE_URL=https://sentriprotocol.duckdns.org` on the deployed server and add `https://sentriprotocol.duckdns.org/api/gmail/callback` to the **same Web application OAuth client** under Google Auth Platform → Clients → Authorized redirect URIs. Keep the local callback as an additional URI for development. Google compares the scheme, host, path and trailing slash exactly. Set `DEPLOYMENT_URL` to the reachable HTTPS Deployment server and configure the same `PROTOCOL_DEPLOYMENT_SECRET` on both servers. The reverse proxy must preserve the public `Host` header. Protocol validates the request against `PROTOCOL_BASE_URL`, checks the Google email against Deployment after OAuth and before every inbox operation, and fails closed when Deployment is unavailable.
+
+Google Auth Platform must also be configured for broad access. While its publishing status is **Testing**, only explicitly listed test users can authorize. An external production app requesting `gmail.readonly` needs Google's restricted-scope verification; sending or storing restricted Gmail data on a server may require a security assessment. Deploying this access gate does not change Google's OAuth publishing status.
 
 ## Run
 
@@ -88,7 +90,7 @@ Development uses `.next-dev` while production uses `.next`, so a production buil
 
 ## Production scope
 
-This implementation intentionally accepts only loopback requests and runs in one persistent Node process with Python installed. It is not ready for a public/serverless or multi-instance deployment. Production needs company-managed identity and access controls, HTTPS, an explicit session/token-storage policy, and infrastructure privacy controls. Gmail read-only is a restricted scope; review Google's verification and security-assessment requirements for your distribution and data usage before public rollout.
+This implementation accepts requests for its configured local or HTTPS origin and runs in one persistent Node process with Python installed. It is not ready for serverless or multi-instance deployment. Production still needs a shared session/token store, infrastructure privacy controls, and Google's OAuth verification for broad distribution. Gmail read-only is a restricted scope.
 
 References: [Gmail API guides](https://developers.google.com/workspace/gmail/api/guides), [server-side OAuth](https://developers.google.com/identity/protocols/oauth2/web-server), [Gmail scopes](https://developers.google.com/workspace/gmail/api/auth/scopes).
 
@@ -136,7 +138,7 @@ Protocol shows five user-facing categories. **Safe** means an exact approved sen
 
 ## Deployment monitoring
 
-Set `DEPLOYMENT_URL` to your Deployment server and `PROTOCOL_DEPLOYMENT_SECRET` to the same server-held secret configured in Deployment, then restart. Connect Gmail using the exact work email on an active employee account. Protocol displays the company-link status and sends a heartbeat every 30 seconds while signed in.
+Set `DEPLOYMENT_URL` to your Deployment server and `PROTOCOL_DEPLOYMENT_SECRET` to the same server-held secret configured in Deployment, then restart. Create and invite each employee in Deployment before they sign in; the administrator account is eligible too. Protocol uses the Google-verified email as the only matching field: the user does not enter a separate Protocol password. The email must exactly match the active account's work email. Protocol displays the company-link status and sends a heartbeat every 30 seconds while signed in.
 
 New suspicious/high-risk analyses send metadata alerts to the company admin: employee identity, risk level, detection time, and an HMAC message identifier. Email subjects, sender addresses, body text, attachments, explanations and Google tokens are not shared with Deployment. Previously cached analyses are not automatically backfilled.
 
