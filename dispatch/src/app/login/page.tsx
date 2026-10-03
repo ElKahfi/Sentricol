@@ -28,8 +28,8 @@ export default function LoginPage() {
       <header className="access-brand"><span>S E N T R I</span><p>SECURITY TRAINING SYSTEM</p></header>
       <form className="access-terminal" onSubmit={login}>
         <div className="access-terminal-heading"><h1>ACCESS TERMINAL</h1><span aria-hidden="true">01</span></div>
-        <label htmlFor="work-email">WORK EMAIL</label>
-        <input id="work-email" name="email" type="email" autoComplete="username" autoCapitalize="none" spellCheck={false} placeholder="employee@company.com" required disabled={busy} />
+        <label htmlFor="work-email">WORK EMAIL OR USERNAME</label>
+        <input id="work-email" name="email" type="text" autoComplete="username" autoCapitalize="none" spellCheck={false} placeholder="employee@company.com" required disabled={busy} />
         <label htmlFor="password">PASSWORD</label>
         <div className="access-password"><input id="password" name="password" type={visible ? 'text' : 'password'} autoComplete="current-password" placeholder="••••••••••" required disabled={busy} /><button type="button" onClick={() => setVisible(!visible)} aria-label={visible ? 'Hide password' : 'Show password'}>{visible ? 'HIDE' : 'SHOW'}</button></div>
         {error && <p className="access-error" role="alert">{error}</p>}

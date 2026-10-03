@@ -12,13 +12,22 @@ const select = `SELECT u.user_id::text AS "userId",u.user_code AS "userCode",u.a
  JOIN companies c USING(company_id) LEFT JOIN ranks r USING(rank_id) WHERE u.role='player' AND e.is_active=true`
 function publicPlayer(account: Account): Player { const {password_hash: _, ...player} = account; return player }
 const dummyHash = hash(randomUUID(),12)
-export async function loginPlayer(email: string, password: string): Promise<Player | null> {
-  const result = await getDatabase().query<Account>(select+' AND lower(u.email)=$1 LIMIT 2',[email.trim().toLowerCase()])
+export async function loginPlayer(identifier: string, password: string): Promise<Player | null> {
+  const result = await getDatabase().query<Account>(select+' AND (lower(u.email)=$1 OR lower(u.username)=$1) LIMIT 2',[identifier.trim().toLowerCase()])
   const account = result.rows.length===1 ? result.rows[0] : undefined
   const matches = await compare(password,account?.password_hash ?? await dummyHash)
   if (!account || !matches) return null
   const updated = await getDatabase().query('UPDATE users SET last_login_at=now() WHERE user_id=$1 AND auth_version=$2 RETURNING user_id',[account.userId,account.version])
   return updated.rowCount ? publicPlayer(account) : null
+}
+// The original local demo used admin / 123. Keep that shortcut confined to the
+// seeded player in development; company administrators never become players.
+export async function loginLocalDemoPlayer(): Promise<Player | null> {
+  const result = await getDatabase().query<Account>(select+" AND u.user_code='usr_0001' LIMIT 1")
+  const account = result.rows[0]
+  if (!account) return null
+  await getDatabase().query('UPDATE users SET last_login_at=now() WHERE user_id=$1',[account.userId])
+  return publicPlayer(account)
 }
 export async function playerForToken(token: string | undefined): Promise<Player | null> {
   const identity = sessionIdentity(token)
