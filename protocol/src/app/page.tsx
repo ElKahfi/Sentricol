@@ -133,6 +133,6 @@ export default function Home() {
       </section></div></div>
       <p className="privacy">Email text is processed by the Protocol server and your configured Qwen service. The local cache is encrypted in this browser; closing the app pauses processing and reopening resumes it. Labels are shown in Protocol and do not change Gmail. Enable sounds to hear one alert for the initial scan and one for each later Risky arrival; past alerts are not replayed.</p>
     </> : <section className="panel welcome"><span className="terminal-mark">[ S ]</span><h2>YOUR INBOX. YOUR DECISION.</h2><p className="lead">Connect to automatically process the 20 latest Inbox emails, newest first.</p><p className="privacy">Email content and labels are stored encrypted on this device. Analysis sends email text to your configured Qwen service. Gmail access is read-only; no messages are sent, deleted, or modified.</p></section>}
-    <div className="model-info"><p>{status?.message}{status?.model && <span> · {status.model}</span>}</p><button onClick={checkStatus}>Recheck model</button></div><footer className="footer"><span>SENTRI / PROTOCOL</span><span>LOCAL ENCRYPTED INBOX · GMAIL READ-ONLY</span></footer>
+    <div className="model-info"><p>{status?.message}{status?.model && <span> · {status.model}</span>}</p><button onClick={checkStatus}>Recheck model</button></div><footer className="footer"><span>SENTRI / PROTOCOL</span><a href="/privacy">Privacy policy</a><span>LOCAL ENCRYPTED INBOX · GMAIL READ-ONLY</span></footer>
   </main>
 }

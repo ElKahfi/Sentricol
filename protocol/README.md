@@ -32,6 +32,14 @@ For the public Protocol deployment, set `PROTOCOL_BASE_URL=https://sentriprotoco
 
 Google Auth Platform must also be configured for broad access. While its publishing status is **Testing**, only explicitly listed test users can authorize. An external production app requesting `gmail.readonly` needs Google's restricted-scope verification; sending or storing restricted Gmail data on a server may require a security assessment. Deploying this access gate does not change Google's OAuth publishing status.
 
+### Google verification preparation
+
+The OAuth homepage is `https://sentriprotocol.duckdns.org/`. A privacy-policy page is prepared at `/privacy`, but it must be reviewed and deployed before its URL is entered in Google Auth Platform. Its statements must match the actual production model host, data retention, and company-monitoring configuration.
+
+To request public verification, verify ownership of the authorized domain in Google Search Console using a project owner/editor account. Publish a homepage that describes Protocol and links to the live privacy policy. Enter the same privacy URL in **Branding**; declare only `gmail.readonly` in **Data access**. Record a demonstration video showing Google consent and the resulting Inbox assessment. Then publish the External OAuth app in **Audience** and submit the requested material through **Verification centre**. Google's review and any required restricted-scope security assessment are separate from publishing, so the warning may remain until Google approves the request.
+
+Scope justification for the review: Protocol needs the subject, sender, authentication headers and message body of the 20 newest Inbox messages to explain phishing indicators to the account holder. Metadata-only access cannot read the message body needed for this user-facing assessment. Protocol does not need Gmail send or modify permissions. The demonstration should show the Google consent screen in English, the exact read-only permission, the first Inbox assessment, the on-screen privacy disclosure, and disconnection.
+
 ## Run
 
 From `protocol/`:
