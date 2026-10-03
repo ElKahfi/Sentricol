@@ -24,7 +24,7 @@ test('HTTPS proxy origin, mailbox authorization and callback remain isolated',as
   }
   process.env.PROTOCOL_BASE_URL=origin
   let mailbox='stranger@example.test',revokes=0
-  const route=loader({'@/lib/gmail':{gmailConfig:()=>({baseUrl:origin,redirectUri:origin+'/api/gmail/callback',configured:true}),runGmail:async(command)=>{
+  const route=loader({'@/lib/deployment-access':{checkDeploymentAccess:async()=>({company:'Example'})},'@/lib/gmail':{gmailConfig:()=>({baseUrl:origin,redirectUri:origin+'/api/gmail/callback',configured:true}),runGmail:async(command)=>{
    if(command==='revoke'){revokes++;return{revoked:true}}
    return{token:'never-in-browser',email:mailbox,expiresIn:3600}
   }}})('app/api/gmail/callback/route.ts')

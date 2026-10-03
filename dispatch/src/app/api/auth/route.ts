@@ -1,16 +1,22 @@
 import { validRequestOrigin } from '@/lib/request-origin'
 import { NextRequest } from 'next/server'
 import { SESSION_COOKIE } from '@/lib/auth'
-import { loginPlayer, currentPlayer } from '@/lib/player-auth'
+import { loginPlayer, loginLocalDemoPlayer, currentPlayer } from '@/lib/player-auth'
 import { allowed, body, json, sessionResponse, validPassword, authFailure } from '@/lib/auth-http'
 export async function POST(request: NextRequest) {
   try {
   const input=await body(request)
-  if(!input || typeof input.email!=='string' || input.email.length>150 || !validPassword(input.password)) return json({error:'Enter your work email and password.'},400)
+  if(!input || typeof input.email!=='string' || input.email.length>150 || !validPassword(input.password)) return json({error:'Enter your work email or username and password.'},400)
   const email=input.email.trim().toLowerCase()
   if(!allowed('login:'+email)) return json({error:'Too many sign-in attempts. Try again in 15 minutes.'},429)
+    if (process.env.NODE_ENV === 'development' && process.env.DISPATCH_LOCAL_ADMIN_TOOLS === 'true' &&
+        (request.nextUrl.hostname === 'localhost' || request.nextUrl.hostname === '127.0.0.1') &&
+        email === 'admin' && input.password === '123') {
+      const demo = await loginLocalDemoPlayer()
+      return demo ? sessionResponse(demo,request,true) : json({error:'Demo player is missing. Seed the Dispatch database first.'},503)
+    }
     const player=await loginPlayer(email,input.password)
-    return player ? sessionResponse(player,request) : json({error:'Work email or password is incorrect.'},401)
+    return player ? sessionResponse(player,request) : json({error:'Work email, username, or password is incorrect.'},401)
   } catch (error) { return authFailure(error,'Sign-in is unavailable. Please contact your administrator.') }
 }
 export async function GET() {

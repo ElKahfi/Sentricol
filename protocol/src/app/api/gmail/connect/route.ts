@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { gmailConfig, runGmail } from '@/lib/gmail'
 import { cookieOptions, createPending, flowCookie, consumePending } from '@/lib/gmail-session'
-import { isLocalRequest } from '@/lib/requests'
+import { isProtocolRequest } from '@/lib/requests'
 import { privateHeaders, gmailError } from '@/lib/gmail-api'
+import { googleCredentials } from '@/lib/google-config'
 export const runtime = 'nodejs'
 export async function POST(request: NextRequest) {
-  if (!isLocalRequest(request, true)) return NextResponse.json({ error: 'Invalid request origin.' }, { status: 403, headers: privateHeaders })
+  if (!isProtocolRequest(request, true)) return NextResponse.json({ error: 'Invalid request origin.' }, { status: 403, headers: privateHeaders })
+  if (!googleCredentials().valid) return NextResponse.json({ error: 'Google sign-in is not configured correctly. Set the complete Web application GOOGLE_CLIENT_ID ending in .apps.googleusercontent.com and its matching GOOGLE_CLIENT_SECRET on the Protocol server, then redeploy.' }, { status: 503, headers: privateHeaders })
   const config = gmailConfig()
-  if (!config.configured) return NextResponse.json({ error: 'Configure Google OAuth credentials and PROTOCOL_ALLOWED_EMAILS for public access on the server.' }, { status: 503, headers: privateHeaders })
+  if (!config.configured) return NextResponse.json({ error: 'Configure Google OAuth, the Deployment account connection, and the public mailbox allowlist on the Protocol server first.' }, { status: 503, headers: privateHeaders })
   if (request.headers.get('origin') !== config.baseUrl) return NextResponse.json({ error: `Open ${config.baseUrl} to connect Gmail.` }, { status: 400, headers: privateHeaders })
   let pending: ReturnType<typeof createPending>
   try { pending = createPending() }

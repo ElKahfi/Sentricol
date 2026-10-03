@@ -1,5 +1,6 @@
 import { runPython } from './python'
 import { protocolOrigin, accessConfigured } from './access-config'
+import { googleCredentials } from './google-config'
 
 export type SenderCheck = { status: 'trusted' | 'scan-required'; senderAddress: string; reason: string; aiScanned: false }
 export type MailSummary = { id: string; sender: string; subject: string; date: string; receivedAt?: number }
@@ -8,14 +9,16 @@ export type Inbox = { messages: MailSummary[]; nextPageToken: string }
 
 export function gmailConfig() {
   const { origin } = protocolOrigin()
-  return { baseUrl: origin, redirectUri: `${origin}/api/gmail/callback`, configured: Boolean(process.env.GOOGLE_CLIENT_ID?.trim() && process.env.GOOGLE_CLIENT_SECRET?.trim() && accessConfigured()) }
+  return { baseUrl: origin, redirectUri: `${origin}/api/gmail/callback`, configured: Boolean(googleCredentials().valid && accessConfigured() && process.env.DEPLOYMENT_URL?.trim() && (process.env.PROTOCOL_DEPLOYMENT_SECRET?.length ?? 0)>=32) }
 }
 
 export function runGmail<T>(command: 'authorize' | 'exchange' | 'list' | 'get' | 'revoke', input: unknown, signal?: AbortSignal): Promise<T> {
   const env: NodeJS.ProcessEnv = { PATH: process.env.PATH, NODE_ENV: process.env.NODE_ENV, PYTHONDONTWRITEBYTECODE: '1' }
   if (command === 'authorize' || command === 'exchange') {
-    env.GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
-    env.GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET
+    const credentials = googleCredentials()
+    if (!credentials.valid) throw new Error('Configure a complete Google Web application client ID and its matching client secret.')
+    env.GOOGLE_CLIENT_ID = credentials.clientId
+    env.GOOGLE_CLIENT_SECRET = credentials.clientSecret
   }
   if (command === 'get') env.PROTOCOL_TRUSTED_SENDERS_PATH = process.env.PROTOCOL_TRUSTED_SENDERS_PATH
   return runPython<T>({ executable: process.env.GMAIL_PYTHON || '.venv/bin/python', script: 'python/gmail.py', args: [command], input, env, timeout: 65000, signal })

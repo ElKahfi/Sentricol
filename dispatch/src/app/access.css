@@ -56,3 +56,20 @@
 .settings-password-form .console-button { padding:10px 14px; }
 .settings-password-form small { align-self:center; }
 .terminal-settings .settings-content { max-height:650px; overflow-y:auto; }
+.admin-progress-status { display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin:20px 0; padding:14px; border:1px solid #858875; font:14px 'Courier New',monospace; }
+.admin-progress-status span { padding-left:12px; border-left:1px solid #999b89; }
+.admin-progress-actions { display:flex; flex-wrap:wrap; gap:10px; margin:18px 0; }
+.admin-progress-actions .console-button,.admin-progression>.console-button,.admin-progress-config>.console-button { padding:12px 16px; }
+.admin-progress-note { font-size:14px!important; }
+.admin-progress-config { display:grid; gap:13px; border-top:1px solid #858875; padding-top:22px; }
+.admin-progress-config legend { padding-right:12px; }
+.admin-progress-config label { display:grid; gap:5px; font:bold 13px 'Courier New',monospace; }
+.admin-progress-numbers { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.admin-progress-config input { width:100%; min-width:0; padding:9px 11px; border:1px solid #777d68; background:#e0ddca; color:#252b24; font:15px 'Courier New',monospace; }
+.admin-progress-config small { font:13px 'Courier New',monospace; line-height:1.4; }
+.admin-progress-error { color:#8b3123; }
+.admin-review-case { display:grid; gap:8px; padding:14px; border:1px solid #858875; font:14px 'Courier New',monospace; }
+.admin-review-case>p { white-space:pre-wrap; max-height:140px; overflow:auto; margin:0; }
+.admin-review-case details { overflow-wrap:anywhere; }
+.admin-review-case ul { padding-left:20px; }
+.admin-review-case .admin-progress-actions { margin:4px 0 0; }

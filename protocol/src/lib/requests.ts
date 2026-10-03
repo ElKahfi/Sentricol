@@ -1,29 +1,25 @@
 import type { NextRequest } from 'next/server'
 import { protocolOrigin } from './access-config'
 
-export function isLocalRequest(request: NextRequest, requireOrigin = false) {
-  // Retain the historical name for callers; public mode uses the configured origin.
-  try {
-    const config = protocolOrigin()
-    if (!config.local) {
-      // Coolify preserves Host while forwarding over HTTP. Never trust arbitrary
-      // X-Forwarded-Host/Proto headers as an origin allowlist.
-      if ((request.headers.get('host') ?? request.nextUrl.host) !== config.host) return false
-      const origin = request.headers.get('origin')
-      return origin ? origin === config.origin : !requireOrigin
-    }
-  } catch { return false }
-  const host = request.nextUrl.hostname
-  const localHosts = ['localhost', '127.0.0.1', '[::1]']
-  if (!localHosts.includes(host)) return false
+export function isProtocolRequest(request: NextRequest, requireOrigin = false) {
+  let expected: URL
+  try { expected = new URL(protocolOrigin().origin) } catch { return false }
+  const host=request.headers.get('host') || request.nextUrl.host
+  let actual:URL
+  try { actual=new URL(`${expected.protocol}//${host}`) } catch { return false }
+  const loopback=(hostname:string)=>['localhost','127.0.0.1','[::1]'].includes(hostname)
+  // NextRequest normalizes a loopback IP in its URL to localhost in unit tests.
+  if (actual.host!==expected.host && !(loopback(actual.hostname) && loopback(expected.hostname) && actual.port===expected.port)) return false
   const origin = request.headers.get('origin')
   if (!origin) return !requireOrigin
   try {
-    const source = new URL(origin)
-    // Next normalizes loopback IPs to localhost when constructing NextURL.
-    return localHosts.includes(source.hostname) && source.port === request.nextUrl.port && source.protocol === request.nextUrl.protocol
+    new URL(origin)
+    return origin === expected.origin
   } catch { return false }
 }
+
+// Compatibility for existing callers and regression tests.
+export const isLocalRequest = isProtocolRequest
 
 export async function readBoundedJson(request: Request) {
   const reader = request.body?.getReader()

@@ -27,6 +27,7 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL:?Set the Neon connection URL in .env}
       DEPLOYMENT_AUTH_MODE: database
+      PROTOCOL_DEPLOYMENT_SECRET: ${PROTOCOL_DEPLOYMENT_SECRET:-}
       DEPLOYMENT_SESSION_SECRET: ${DEPLOYMENT_SESSION_SECRET:?Set a random session secret in .env}
       DEPLOYMENT_ORIGIN: ${DEPLOYMENT_ORIGIN:-http://localhost:3002}
 
@@ -58,12 +59,16 @@ services:
     ports: ['127.0.0.1:3003:3000']
     environment:
       PROTOCOL_BASE_URL: http://127.0.0.1:3003
+      DEPLOYMENT_URL: ${DEPLOYMENT_URL:-}
+      PROTOCOL_DEPLOYMENT_SECRET: ${PROTOCOL_DEPLOYMENT_SECRET:-}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
       GMAIL_PYTHON: /app/protocol/.venv/bin/python
       SENTRI_HARNESS_PATH: /app/ai-harness
       OLLAMA_HOST: http://ollama:11434
       SENTRI_MODEL: ${SENTRI_MODEL:?Set the exact Ollama model tag in .env}
+    volumes:
+      - protocol-data:/app/protocol/.sentri
     depends_on:
       ollama:
         condition: service_healthy
@@ -90,3 +95,4 @@ services:
 
 volumes:
   ollama-data:
+  protocol-data:

@@ -44,6 +44,7 @@ export interface CourseConfig {
   version: string;
   targetMinutes: number;
   recoveryAllowance: number;
+  adminEventGates?: boolean;
   phases: Record<Phase, Knowledge[]>;
 }
 export const DEFAULT_CONFIG: CourseConfig = {
@@ -77,11 +78,13 @@ export interface Slot {
 }
 export interface CourseState {
   version: typeof SCORING_VERSION; config: CourseConfig; phase: Phase;
-  status: 'active' | 'content-blocked' | 'needs-follow-up' | 'graduated';
+  status: 'active' | 'content-blocked' | 'needs-follow-up' | 'event-pending' | 'graduated';
+  pendingEvent?: 'event-1' | 'event-2' | null;
   message: string | null; slots: Slot[]; observations: Observation[];
 }
 export interface CourseView {
   version: string; status: CourseState['status']; phase: Phase; message: string | null;
+  pendingEvent?: 'event-1' | 'event-2' | null;
   exp: number; targetExp: number; progress: number; targetMinutes: number;
   phases: { phase: Phase; exp: number; budget: number; passed: number; planned: number; unlocked: boolean }[];
   recoveryUsed: number; recoveryAllowance: number; skills: SkillSummary[];
@@ -101,6 +104,7 @@ export function validateConfig(config: CourseConfig) {
   requireRule(config && typeof config.version === 'string' && config.version.length > 0, 'Course version is required')
   requireRule(Number.isInteger(config.targetMinutes) && config.targetMinutes >= 5 && config.targetMinutes <= 180, 'Target duration must be 5–180 minutes')
   requireRule(Number.isInteger(config.recoveryAllowance) && config.recoveryAllowance >= 0 && config.recoveryAllowance <= 80, 'Invalid recovery allowance')
+  requireRule(config.adminEventGates === undefined || typeof config.adminEventGates === 'boolean', 'Invalid event-gate setting')
   for (const phase of PHASES) {
     const objectives = config.phases?.[phase]
     requireRule(Array.isArray(objectives) && objectives.length >= 1 && objectives.length <= 20, `Configure 1–20 ${phase} slots`)
@@ -171,6 +175,33 @@ export function createCourse(config: CourseConfig = DEFAULT_CONFIG): CourseState
   validateConfig(config)
   return { version: SCORING_VERSION, config: structuredClone(config), phase: 'easy', status: 'active', message: null, slots: [], observations: [] }
 }
+export function skipCourseDifficulty(state: CourseState, id: () => string) {
+  if (state.pendingEvent) throw new CourseError('Skip the pending event before advancing difficulty.')
+  if (state.status === 'graduated') throw new CourseError('The course is already complete.')
+  const phase = state.phase
+  const objectives = state.config.phases[phase]
+  const base = Math.floor(PHASE_BUDGET / objectives.length)
+  const slots: Slot[] = objectives.map((objective, index) => {
+    const units = base + (index === objectives.length - 1 ? PHASE_BUDGET - base * objectives.length : 0)
+    return { id:id(), phase, objective, allocationUnits:units, earnedUnits:units, passed:true, assignments:[] }
+  })
+  state.slots = [...state.slots.filter(slot => slot.phase !== phase), ...slots]
+  if (phase === 'master') { state.status = 'graduated'; state.message = 'Master was skipped by the local administrator.' }
+  else if (state.config.adminEventGates && (phase === 'easy' || phase === 'hard')) {
+    state.pendingEvent = phase === 'easy' ? 'event-1' : 'event-2'
+    state.status = 'event-pending'
+    state.message = `${state.pendingEvent.toUpperCase()} is ready.`
+  } else {
+    state.phase = PHASES[PHASES.indexOf(phase) + 1]
+    state.status = 'active'; state.message = null
+  }
+}
+export function skipCourseEvent(state: CourseState) {
+  if (!state.pendingEvent) throw new CourseError('No event is waiting to be skipped.')
+  state.phase = PHASES[PHASES.indexOf(state.phase) + 1]
+  state.pendingEvent = null
+  state.status = 'active'; state.message = null
+}
 function allAssignments(state: CourseState) { return state.slots.flatMap(s => s.assignments) }
 export function currentAssignment(state: CourseState) {
   for (const slot of state.slots) for (const assignment of slot.assignments) {
@@ -190,7 +221,7 @@ function newAssignment(c: CourseCase, rewardUnits: number, recovery: boolean, id
 }
 // The database serializes calls. A phase is planned atomically; unavailable content never creates a partial plan.
 export function advanceCourse(state: CourseState, catalog: CourseCase[], id: () => string, random = Math.random) {
-  if (state.status === 'graduated' || state.status === 'needs-follow-up' || currentAssignment(state)) return
+  if (state.status === 'graduated' || state.status === 'needs-follow-up' || state.pendingEvent || currentAssignment(state)) return
   state.status = 'active'; state.message = null
   const block = (message: string) => { state.status = 'content-blocked'; state.message = message }
   while (true) {
@@ -226,6 +257,12 @@ export function advanceCourse(state: CourseState, catalog: CourseCase[], id: () 
       return
     }
     if (state.phase === 'master') { state.status = 'graduated'; state.message = 'All four phases and required Master objectives passed.'; return }
+    if (state.config.adminEventGates && (state.phase === 'easy' || state.phase === 'hard')) {
+      state.pendingEvent = state.phase === 'easy' ? 'event-1' : 'event-2'
+      state.status = 'event-pending'
+      state.message = `${state.pendingEvent.toUpperCase()} checkpoint is waiting for the administrator.`
+      return
+    }
     state.phase = PHASES[PHASES.indexOf(state.phase) + 1]
   }
 }
@@ -287,7 +324,7 @@ export function courseView(state: CourseState): CourseView {
   const exp = state.slots.reduce((sum, s) => sum + s.earnedUnits, 0) / EXP_UNIT
   const keys = Object.keys({ ...BEHAVIOR_WEIGHTS, ...KNOWLEDGE_WEIGHTS }) as Skill[]
   return {
-    version: state.version, status: state.status, phase: state.phase, message: state.message,
+    version: state.version, status: state.status, phase: state.phase, message: state.message, pendingEvent: state.pendingEvent ?? null,
     exp, targetExp: TARGET_EXP, progress: exp / 10, targetMinutes: state.config.targetMinutes,
     phases: PHASES.map(phase => {
       const slots = state.slots.filter(s => s.phase === phase)

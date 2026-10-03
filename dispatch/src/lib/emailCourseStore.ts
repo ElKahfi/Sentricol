@@ -80,12 +80,12 @@ export async function executeCourseCommand(command: CourseCommand, userCode: str
       if (command.action === 'acknowledge') acknowledgeFeedback(state, command.assignmentId, command.attempt)
       const catalogResult = await client.query<{ content: CourseCase }>(
         `SELECT content FROM email_course_cases
-          WHERE review_status = 'approved' AND scoring_version = $1
+          WHERE review_status = 'approved' AND source = 'ai' AND requested_for_user_id = $5 AND scoring_version = $1
             AND (company_id IS NULL OR company_id = $2)
             AND (cardinality(department_codes) = 0 OR $3 = ANY(department_codes))
             AND (cardinality(rank_codes) = 0 OR $4 = ANY(rank_codes))
           ORDER BY case_key`,
-        [SCORING_VERSION, player.company_id, player.department_code, player.rank_code],
+        [SCORING_VERSION, player.company_id, player.department_code, player.rank_code, player.user_id],
       )
       const catalog: CourseCase[] = []
       for (const row of catalogResult.rows) {

@@ -1,5 +1,19 @@
 # Technical decisions
 
+## 2026-10-03 — Use Fresh as the integration base
+
+The branches share `52a2350` but diverge: Fresh has seven unique commits and
+new-pull has five. New-pull is newer by date and feature coverage; Fresh retains
+the deployment setup and security fixes. Integrate the feature delta into Fresh
+using the common ancestor, preserving both security layers. The user explicitly
+selected Fresh as the destination; new-pull remains unchanged.
+
+The development demo login now requires `DISPATCH_LOCAL_ADMIN_TOOLS=true` and
+development mode. Regular production training stays enabled; do not enable the
+four-stage course globally until production review is implemented. Keep service
+secrets empty in templates and require operator configuration for Gmail access.
+Use a persistent, private Protocol outbox volume with one server process.
+
 ## 2026-10-03 — Publish Protocol through HTTPS with selected accounts
 
 The user requested public Protocol access. This supersedes the earlier decision
@@ -109,3 +123,8 @@ Use standard-library process workers and fictional internal profiles to measure
 validated generation without database writes or catalog fallbacks. Keep endurance
 and authenticated HTTP testing outside this time-limited first benchmark. Small
 samples report median/slowest timing, not p95 or proven sustained capacity.
+## 2026-10-03 — Repair schema without reseeding
+
+Use a narrow additive migration for the absent confidence column rather than rerunning the seed or dropping training tables. Preserve the single answer transaction: partial success would misreport saved progress. Validate SQL against PostgreSQL through read-only EXPLAIN and temporary-table tests instead of modifying real accounts for tests.
+
+Keep the already integrated employee dashboard in SENTRI-fresh; do not overwrite it with an entire sibling checkout. Publication requires a reviewed commit on the actual Coolify branch. Reject malformed Google client configuration early, but do not bypass OAuth or company-account protections to work around Google's invalid_client error.

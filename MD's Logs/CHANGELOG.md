@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-10-03 — Combine upstream features with EC2/security work
+
+- Integrated feature changes through `6060978` into the existing Fresh workspace.
+- Added company dashboard, account verification, risk reporting and encrypted retry queue.
+- Added AI course evidence, per-user pools, review and local progression controls.
+- Preserved origin checks, mailbox allowlist, secure cookies, OAuth state/PKCE,
+  EC2/Coolify files and harness benchmarks; made local demo login opt-in.
+- Wired service connection settings and persistent outbox storage into Compose.
+- Added integration regression tests and documented migration/runtime prerequisites.
+- No live migrations, deployment, secrets edits, commits or pushes performed.
+
 ## 2026-10-03 — Protocol public HTTPS adaptation
 
 - Added an exact HTTPS origin policy with preserved loopback development support.
@@ -92,3 +103,10 @@ fix; local changes alone do not update the EC2 image. Live chat retesting is pen
   timing/throughput/retry reports, failure stop rules, and EC2 instructions.
 - Added offline scheduler tests for overlap, deadlines, and worker failure.
 - Live EC2 benchmarking has not been run.
+## 2026-10-03 — Dispatch save repair and Protocol diagnostics
+
+- Confirmed Neon error 42703: missing `user_skill_profiles.confidence_score`; applied additive repair to locally configured shared database without resetting user history.
+- Added repeatable schema repair script, temporary-table migration regression, and read-only EXPLAIN coverage of the real answer handler's SQL. All database checks pass, including company monitoring isolation tests.
+- Protocol trims Google credentials and rejects incomplete client IDs with an actionable pre-OAuth response. Google-side invalid_client still requires correct runtime credentials.
+- Verified existing pending admin integration, preserved uncommitted work and documented branch/redeployment steps. No source push or Coolify deployment performed.
+- Validation: Deployment 21 unit tests; Dispatch 46 unit tests; Protocol 30 unit tests; three database checks pass; all three TypeScript checks pass.

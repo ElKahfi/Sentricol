@@ -1,5 +1,16 @@
 # SENTRI architecture
 
+Integration update (2026-10-03): Deployment now provides a company-scoped
+monitoring dashboard and service-authenticated Protocol access/event APIs.
+Protocol verifies the Google mailbox against an active Deployment employee/user
+at login and subsequent requests, in addition to the public mailbox allowlist.
+Only risk metadata leaves Protocol; an AES-GCM encrypted retry outbox persists
+in the `protocol-data` volume. Gmail tokens remain in process memory.
+Dispatch includes per-user AI course pools and development-only review/progression
+controls, gated by `DISPATCH_LOCAL_ADMIN_TOOLS=true`. Production retains regular
+practice; four-stage rollout needs a production reviewer workflow. See
+`docs/REPOSITORY-COMPARISON.md` for migrations and validation limits.
+
 Latest Protocol change (2026-10-03): public HTTPS is now supported in code with
 PROTOCOL_BASE_URL and PROTOCOL_ALLOWED_EMAILS. This supersedes the earlier private
 Protocol topology below. Coolify can route Protocol to port 3000; Google OAuth
@@ -199,3 +210,6 @@ See [Coolify operations](../docker/COOLIFY.md) for the complete procedure.
 `ai-harness/benchmark.py` uses isolated Python workers calling the production
 generation harness against Ollama, with bounded concurrency and wall deadlines.
 It bypasses HTTP and Neon; JSON reports contain metadata and outcomes, not content.
+## 2026-10-03 — Schema parity and OAuth configuration
+
+Dispatch persists each completed task in one transaction including skill confidence. A missing skill column therefore prevents all answer persistence. Added a repeatable additive migration and PostgreSQL schema regression checks. Protocol normalizes credentials and validates OAuth client ID shape before creating state; Google remains authoritative for client existence. Existing company membership and mailbox authorization are unchanged. See `docs/RECOVERY-2026-10-03.md`.

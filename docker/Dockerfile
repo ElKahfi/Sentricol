@@ -21,6 +21,7 @@ ENV NODE_ENV=production PORT=3000 HOSTNAME=0.0.0.0
 WORKDIR /app
 COPY --from=build --chown=node:node /app /app
 WORKDIR /app/${APP}
+RUN mkdir -p .sentri && chown node:node .sentri
 USER node
 EXPOSE 3000
 CMD ["sh", "-c", "exec node node_modules/next/dist/bin/next start --hostname 0.0.0.0 --port $PORT"]

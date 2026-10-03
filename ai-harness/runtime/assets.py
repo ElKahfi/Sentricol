@@ -9,6 +9,7 @@ KNOWLEDGE = {
     "one-pass-generator": ["user-profile", "task-structure", "personalization", "behavior-tags", "knowledge-tags"],
     "chatbot": ["user-profile", "task-structure"],
     "email-detector": [],
+    "course-evidence": ["task-structure", "knowledge-tags"],
 }
 
 def read_json(path):

@@ -2,10 +2,12 @@
 
 import { useRef, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import TerminalShell from '@/components/TerminalShell'
 import { authRequest, useAdminSession, type SessionView } from '@/lib/auth-api'
 
 export default function Login() {
+  const router = useRouter()
   const { session, setSession, error: sessionError } = useAdminSession()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -21,6 +23,7 @@ export default function Login() {
     try {
       const result = await authRequest<SessionView>('login', 'POST', { email, password })
       setSession({ ...session, ...result }); setPassword('')
+      router.replace('/admin')
     } catch (error) { setError(error instanceof Error ? error.message : 'Sign-in failed. Please try again.') }
     finally { setBusy(false); submitting.current = false }
   }
@@ -36,7 +39,8 @@ export default function Login() {
     {(error || sessionError) && <p className="form-error" role="alert">{error || sessionError}</p>}
     {session?.admin ? <div>
       <div role="status"><h2>Welcome, {session.admin.name}.</h2><p>You are signed in as administrator for {session.admin.company}.</p></div>
-      <p>Employee management is coming next. CSV upload and manual employee entry are not available yet.</p>
+      <p>Manage employees, follow Dispatch progress, and review Protocol risk alerts in your company panel.</p>
+      <Link className="button primary" href="/admin">[ OPEN ADMIN PANEL → ]</Link>
       <button className="button" disabled={busy} onClick={logout}>{busy ? '[ SIGNING OUT… ]' : '[ SIGN OUT ]'}</button>
     </div> : <>
       {session?.demoCredentials && <p className="demo-help">Try the demo account:<br /><strong>{session.demoCredentials.email}</strong><br />Password: <strong>{session.demoCredentials.password}</strong><br />Or sign in with an account you registered in this demo.</p>}

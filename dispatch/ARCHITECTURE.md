@@ -249,3 +249,18 @@ Production login/logout cookies are Secure behind the HTTP proxy hop. Player-rol
 and active-employee requirements remain unchanged. See
 [authentication troubleshooting](../docker/AUTH-TROUBLESHOOTING.md) for evidence,
 runtime configuration and pending live verification.
+# Integration update — 2026-10-03
+
+Upstream AI course evidence, per-user case pools, pending-review gates and local
+progression controls are integrated with the EC2 authentication protections.
+Regular task practice remains the default. Local demo controls require
+`NODE_ENV=development`, `DISPATCH_LOCAL_ADMIN_TOOLS=true`, a loopback demo login
+and its signed session claim. Never enable these tools on a public dev server.
+Hard/master AI cases require review; the current review UI is local-only, so
+production four-stage enablement remains pending. Apply the updated
+`database/migrations/002_email_course.sql` through the course setup command
+before testing the course against an existing database. See
+`../docs/REPOSITORY-COMPARISON.md` for the full audit and rollout checklist.
+## Answer persistence repair (2026-10-03)
+
+Answer completion is atomic: an error updating skill profiles rolls back the answer, assignment, results and progress. A deployed schema lacked `confidence_score`; migration `004_skill_confidence.sql` adds it without resetting history. `node scripts/repair-skill-schema.cjs` applies the repair transactionally. Opt-in `RUN_SKILL_DATABASE_TESTS=1` tests validate the repair with temporary tables and plan the real handler SQL in read-only mode. See [recovery](../docs/RECOVERY-2026-10-03.md).

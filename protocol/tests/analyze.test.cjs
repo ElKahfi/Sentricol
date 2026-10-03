@@ -1,16 +1,25 @@
 const test = require('node:test')
 const assert = require('node:assert/strict')
-const { NextRequest } = require('next/server')
+const { NextRequest, NextResponse } = require('next/server')
 const createLoader = require('./load-typescript.cjs')
 const origin = 'http://127.0.0.1:3003'
 const assessment = { verdict: 'low-risk', summary: 'No obvious warning signs.', findings: [], recommendations: ['Verify unexpected requests.'] }
 const email = { id: 'abc123', sender: '', replyTo: '', subject: '', body: 'Meeting moved to 3 PM.', notes: [] }
+test('only risky results report metadata using the verified Gmail identity', async () => {
+  const reports=[]
+  for (const verdict of ['low-risk','inconclusive','spam','suspicious','high-risk']) {
+    const {POST}=route(async()=>({...assessment,verdict}),{'@/lib/company-monitoring':{reportRisk:async(...args)=>reports.push(args)}})
+    assert.equal((await POST(request({messageId:'abc123'}))).status,200)
+  }
+  assert.deepEqual(reports,[['employee@example.test','abc123','suspicious'],['employee@example.test','abc123','high-risk']])
+})
 function request(body, headers = {}) {
   return new NextRequest(origin + '/api/analyze', { method: 'POST', headers: { origin, 'content-type': 'application/json', ...headers }, body: typeof body === 'string' ? body : JSON.stringify(body) })
 }
 function route(runHarness, extra = {}) {
   const session = { token: 'server-token', email: 'employee@example.test' }
-  return createLoader({ '@/lib/harness': { runHarness }, '@/lib/gmail-session': { getSession: () => session }, '@/lib/gmail': { runGmail: async (command, payload) => { assert.equal(command, 'get'); assert.deepEqual(payload, { token: 'server-token', messageId: 'abc123', mailbox: 'employee@example.test' }); return email } }, ...extra })('app/api/analyze/route.ts')
+  const getSession=extra['@/lib/gmail-session']?.getSession || (()=>session)
+  return createLoader({ '@/lib/harness': { runHarness }, '@/lib/authorized-session': {authorizedSession:async()=>{const current=getSession();return current?{session:current,response:null}:{session:null,response:NextResponse.json({error:'Connect Gmail first.'},{status:401})}}}, '@/lib/gmail-session': { getSession: () => session }, '@/lib/gmail': { runGmail: async (command, payload) => { assert.equal(command, 'get'); assert.deepEqual(payload, { token: 'server-token', messageId: 'abc123', mailbox: 'employee@example.test' }); return email } }, ...extra })('app/api/analyze/route.ts')
 }
 test('selected Gmail message is fetched server-side before Qwen receives text', async () => {
   const { POST } = route(async (command, input, signal) => {

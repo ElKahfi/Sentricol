@@ -11,9 +11,9 @@ export function authFailure(error: unknown, message: string) {
   return json({error:message},503)
 }
 export function json(body: unknown, status=200) { return NextResponse.json(body,{status,headers:{'Cache-Control':'no-store'}}) }
-export function sessionResponse(player: Player, request: NextRequest) {
+export function sessionResponse(player: Player, request: NextRequest, localAdminTools = false) {
   const response = json({ok:true,player})
-  response.cookies.set(SESSION_COOKIE,createSession({userId:player.userId,version:player.version}),{httpOnly:true,secure:process.env.NODE_ENV==='production' || request.nextUrl.protocol==='https:',sameSite:'lax',path:'/',maxAge:SESSION_SECONDS})
+  response.cookies.set(SESSION_COOKIE,createSession({userId:player.userId,version:player.version,...(localAdminTools ? {localAdminTools:true} : {})}),{httpOnly:true,secure:process.env.NODE_ENV==='production' || request.nextUrl.protocol==='https:',sameSite:'lax',path:'/',maxAge:SESSION_SECONDS})
   return response
 }
 const state = globalThis as unknown as { dispatchAuthAttempts?: Map<string,{count:number;until:number}> }

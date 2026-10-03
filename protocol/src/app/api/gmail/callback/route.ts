@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { gmailConfig, runGmail } from '@/lib/gmail'
 import { cookieOptions, consumePending, createSession, deleteSession, flowCookie, sessionCookie } from '@/lib/gmail-session'
-import { isLocalRequest } from '@/lib/requests'
+import { isProtocolRequest } from '@/lib/requests'
 import { privateHeaders } from '@/lib/gmail-api'
 import { allowedMailbox } from '@/lib/access-config'
+import { checkDeploymentAccess, DeploymentAccessError } from '@/lib/deployment-access'
 export const runtime = 'nodejs'
 export async function GET(request: NextRequest) {
-  if (!isLocalRequest(request)) return NextResponse.json({ error: 'Local access only.' }, { status: 403, headers: privateHeaders })
+  if (!isProtocolRequest(request)) return NextResponse.json({ error: 'Invalid Protocol host.' }, { status: 403, headers: privateHeaders })
   const config = gmailConfig()
   const redirect = (reason: string) => {
     const response = NextResponse.redirect(new URL(`/?gmail=${reason}`, config.baseUrl))
@@ -24,6 +25,11 @@ export async function GET(request: NextRequest) {
     if (!allowedMailbox(result.email)) {
       try { await runGmail('revoke', { token: result.token }, request.signal) } catch { /* No session or token is retained. */ }
       return redirect('forbidden')
+    }
+    try { await checkDeploymentAccess(result.email) }
+    catch(error) {
+      try { await runGmail('revoke',{token:result.token},request.signal) } catch { /* Short-lived token will expire. */ }
+      return redirect(error instanceof DeploymentAccessError && error.status===403 ? 'not-registered' : 'access-unavailable')
     }
     deleteSession(request)
     const session = createSession(result.token, result.email, result.expiresIn)

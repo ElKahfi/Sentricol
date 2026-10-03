@@ -1,5 +1,13 @@
 # SENTRI
 
+Integration status (2026-10-03): this workspace combines the EC2/security branch
+with upstream company monitoring and AI course features through `6060978`.
+See [repository comparison and rollout requirements](docs/REPOSITORY-COMPARISON.md).
+Protocol now requires a Deployment account connection as well as the public
+mailbox allowlist. Configure `DEPLOYMENT_URL` and `PROTOCOL_DEPLOYMENT_SECRET`
+before Gmail sign-in. Local demo controls require explicit opt-in; regular
+training remains the production default.
+
 For the public login/registration investigation and rollout instructions, see
 [authentication troubleshooting](docker/AUTH-TROUBLESHOOTING.md).
 
@@ -67,3 +75,6 @@ See [System architecture](MD%27s%20Logs/ARCHITECTURE.md), [Changelog](MD%27s%20L
 
 The [short harness benchmark](ai-harness/BENCHMARK.md) measures valid task generation
 at concurrency 1, 2, and 4 without database writes, with a 15-minute generation budget.
+## Saving, dashboard and Google sign-in recovery (2026-10-03)
+
+See [the recovery runbook](docs/RECOVERY-2026-10-03.md) for the confirmed Neon schema repair, source/branch deployment checks and Google OAuth setup. Active work remains in SENTRI-fresh; the existing admin dashboard integration still needs publishing to Coolify's selected Git branch.

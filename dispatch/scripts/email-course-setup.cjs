@@ -12,12 +12,15 @@ function load(relative) {
   if (cache.has(file)) return cache.get(file)
   const exports = {}
   cache.set(file, exports)
-  const code = ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText
-  vm.runInNewContext(code, { exports, structuredClone, require: name => load(path.relative(root, path.resolve(path.dirname(file), name + '.ts'))) }, { filename: file })
+  const code = ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true } }).outputText
+  vm.runInNewContext(code, { exports, structuredClone, require: name => {
+    const target = path.resolve(path.dirname(file), name)
+    return name.endsWith('.json') ? JSON.parse(fs.readFileSync(target, 'utf8')) : load(path.relative(root, target + '.ts'))
+  } }, { filename: file })
   return exports
 }
 const { STARTER_CATALOG } = load('database/email-course-catalog.ts')
-const { DEFAULT_CONFIG, SCORING_VERSION, validateCase } = load('lib/emailCourse.ts')
+const { DEFAULT_CONFIG, SCORING_VERSION, validateCase } = load('src/lib/emailCourse.ts')
 for (const c of STARTER_CATALOG) validateCase(c)
 async function main() {
   if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is required')

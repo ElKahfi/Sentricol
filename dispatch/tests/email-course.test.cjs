@@ -69,6 +69,42 @@ test('company course settings are snapshotted; selection freezes all phase alloc
   assert.equal(state.slots.reduce((sum, s) => sum + s.allocationUnits, 0), PHASE_BUDGET)
 })
 
+test('optional admin event gate pauses after Easy until explicitly cleared', () => {
+  const config = {...structuredClone(rules.DEFAULT_CONFIG), adminEventGates: true}
+  const state = createCourse(config); plan(state)
+  for (const objective of config.phases.easy) {
+    const a = currentAssignment(state).assignment
+    assert.equal(a.case.objective, objective)
+    submitAnswer(state, correct(a)); ack(state)
+  }
+  assert.equal(state.status, 'event-pending')
+  assert.equal(state.pendingEvent, 'event-1')
+  assert.equal(courseView(state).progress, 25)
+  plan(state)
+  assert.equal(currentAssignment(state), null)
+})
+
+test('local admin can fast-forward stages and events without breaking the 1,000 EXP target', () => {
+  const state = createCourse({...structuredClone(rules.DEFAULT_CONFIG), adminEventGates:true})
+  rules.skipCourseDifficulty(state, id)
+  assert.equal(state.phase, 'easy')
+  assert.equal(state.pendingEvent, 'event-1')
+  assert.equal(courseView(state).exp, 250)
+  assert.throws(() => rules.skipCourseDifficulty(state, id), /pending event/)
+  rules.skipCourseEvent(state)
+  assert.equal(state.phase, 'normal')
+  rules.skipCourseDifficulty(state, id)
+  assert.equal(state.phase, 'hard')
+  rules.skipCourseDifficulty(state, id)
+  assert.equal(state.pendingEvent, 'event-2')
+  rules.skipCourseEvent(state)
+  assert.equal(state.phase, 'master')
+  rules.skipCourseDifficulty(state, id)
+  assert.equal(state.status, 'graduated')
+  assert.equal(courseView(state).progress, 100)
+  assert.equal(courseView(state).exp, 1000)
+})
+
 for (const phase of PHASES) test(`${phase} enforces its server-side attempt cap and terminal feedback gate`, () => {
   const state = createCourse(); state.phase = phase; plan(state)
   const a = currentAssignment(state).assignment

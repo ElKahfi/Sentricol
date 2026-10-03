@@ -35,7 +35,7 @@ export class InboxMonitor {
     const response = await fetch(url, { ...init, headers, cache: 'no-store', signal: this.abort.signal })
     const data = await response.json()
     if (!response.ok) {
-      if (response.status === 401 || response.status === 409) this.loginRequired = true
+      if (response.status === 401 || response.status === 403 || response.status === 409) this.loginRequired = true
       throw new ApiError(data.error || 'The request could not complete.', response.status)
     }
     return data

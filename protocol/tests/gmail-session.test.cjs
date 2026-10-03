@@ -37,7 +37,7 @@ test('successful callback sets an opaque cookie and consumes its state', async (
   const pending = sessions.createPending()
   let calls = 0
   const config = { baseUrl: 'http://127.0.0.1:3003', redirectUri: 'http://127.0.0.1:3003/api/gmail/callback', configured: true }
-  const { GET } = createLoader({ '@/lib/gmail': { gmailConfig: () => config, runGmail: async (command, payload) => {
+  const { GET } = createLoader({ '@/lib/deployment-access': { checkDeploymentAccess: async email => { assert.equal(email, 'test@example.test'); return {company:'Example'} } }, '@/lib/gmail': { gmailConfig: () => config, runGmail: async (command, payload) => {
     calls++
     assert.equal(command, 'exchange')
     assert.deepEqual(payload, { code: 'test-code', verifier: pending.verifier, redirectUri: config.redirectUri })
@@ -55,4 +55,17 @@ test('successful callback sets an opaque cookie and consumes its state', async (
   assert.equal((await GET(request)).headers.get('location'), config.baseUrl + '/?gmail=state')
   assert.equal(calls, 1)
   sessions.deleteSession(signedIn)
+})
+test('Google sign-in rejects an address absent from Deployment before creating a session', async () => {
+  const pending=sessions.createPending()
+  const config={baseUrl:'http://127.0.0.1:3003',redirectUri:'http://127.0.0.1:3003/api/gmail/callback',configured:true}
+  class Denied extends Error {constructor(message,status){super(message);this.status=status}}
+  const { GET }=createLoader({
+    '@/lib/deployment-access': {DeploymentAccessError:Denied,checkDeploymentAccess:async()=>{throw new Denied('No account',403)}},
+    '@/lib/gmail':{gmailConfig:()=>config,runGmail:async command=>command==='exchange'?{token:'temporary-token',email:'outsider@example.test',expiresIn:3600}:{revoked:true}},
+  })('app/api/gmail/callback/route.ts')
+  const request=new NextRequest(`${config.redirectUri}?code=test-code&state=${pending.state}`,{headers:{cookie:`${sessions.flowCookie}=${pending.id}`}})
+  const response=await GET(request)
+  assert.equal(response.cookies.get(sessions.sessionCookie),undefined)
+  assert.equal(response.headers.get('location'),config.baseUrl+'/?gmail=not-registered')
 })

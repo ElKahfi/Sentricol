@@ -194,3 +194,18 @@ fix; local changes alone do not update the EC2 image. Live chat retesting is pen
 See [the harness benchmark guide](../ai-harness/BENCHMARK.md) for running the new
 benchmark inside Dispatch on EC2/Coolify and collecting GPU/CPU metrics. Deploy an
 image containing the script first; the benchmark does not write to Neon.
+# Integration runtime settings — 2026-10-03
+
+Both Compose stacks now pass `PROTOCOL_DEPLOYMENT_SECRET` to Deployment and
+Protocol, and `DEPLOYMENT_URL` to Protocol. Set a shared independent random
+secret of at least 32 characters and a reachable Deployment HTTPS origin.
+Blank settings allow the stack to start but Gmail sign-in fails closed.
+Do not use localhost to reach a different container. Apply the monitoring
+migration before opening the dashboard and the updated course migration before
+local course testing; these are manual operations, not container startup steps.
+The `protocol-data` volume retains encrypted pending alerts across recreation.
+Keep the service secret stable while alerts are queued and use one Protocol
+process per volume. See `../docs/REPOSITORY-COMPARISON.md` for details.
+## Recovery and publishing (2026-10-03)
+
+See [the recovery runbook](../docs/RECOVERY-2026-10-03.md). The missing skill confidence column was repaired on locally configured Neon; confirm Coolify uses the same database. Publish the pending integration to Coolify's selected branch and rebuild images for source changes. Google credentials must belong to one valid Web OAuth client; container restart alone does not build new source.

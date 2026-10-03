@@ -22,6 +22,11 @@ export function useEmailCourse(enabled: boolean) {
       try { sessionStorage.removeItem(PENDING_KEY) } catch { /* Browser storage is optional. */ }
       retryCommand.current = { action: 'resume' }
       setData(response)
+      if (response.generation?.status === 'created' && response.course.status === 'content-blocked') {
+        setTimeout(() => { void send({action:'resume'}) }, 250)
+      } else if (response.generation?.status === 'busy' && response.course.status === 'content-blocked') {
+        setTimeout(() => { void send({action:'resume'}) }, 3000)
+      }
       return response
     } catch (e) {
       const rejected = e instanceof Error && 'status' in e && typeof e.status === 'number' && e.status >= 400 && e.status < 500

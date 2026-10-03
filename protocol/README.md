@@ -1,5 +1,13 @@
 # SENTRI Protocol
 
+Integration requirement: Gmail sign-in now requires `DEPLOYMENT_URL` and a
+matching `PROTOCOL_DEPLOYMENT_SECRET` of at least 32 characters in Deployment
+and Protocol. Both the public mailbox allowlist and active Deployment account
+check must pass. Compose forwards these settings and persists the encrypted
+monitoring outbox in `protocol-data`; Google tokens are still memory-only.
+For Docker, use a reachable Deployment HTTPS origin: `127.0.0.1:3002` inside
+the Protocol container points to Protocol itself, not Deployment.
+
 Gmail phishing-analysis app supporting loopback development and explicitly configured public HTTPS. Google handles login; Python calls the Gmail API. Connecting Gmail starts automatic analysis of the 20 newest Inbox messages by the shared Qwen harness.
 
 ## Public HTTPS on Coolify
@@ -71,6 +79,10 @@ itself is publicly visible; mailbox APIs and analysis require an allowed session
 8. Restart Protocol, open **http://127.0.0.1:3003**, and click **Sign in with Google**. Sign in as the test user and grant the read-only Gmail permission. Google may show an unverified-app screen while your own project is in testing. Confirm the project/client is yours before proceeding.
 
 Use `127.0.0.1` consistently: `localhost` and `127.0.0.1` are different OAuth redirect addresses. If you change ports, update the app's port, PROTOCOL_BASE_URL, and Google's redirect URI together.
+
+For the public Protocol deployment, set `PROTOCOL_BASE_URL=https://sentriprotocol.duckdns.org` on the deployed server and add `https://sentriprotocol.duckdns.org/api/gmail/callback` to the **same Web application OAuth client** under Google Auth Platform → Clients → Authorized redirect URIs. Keep the local callback as an additional URI for development. Google compares the scheme, host, path and trailing slash exactly. Set `DEPLOYMENT_URL` to the reachable HTTPS Deployment server and configure the same `PROTOCOL_DEPLOYMENT_SECRET` on both servers. The reverse proxy must preserve the public `Host` header. Protocol validates the request against `PROTOCOL_BASE_URL`, checks the Google email against Deployment after OAuth and before every inbox operation, and fails closed when Deployment is unavailable.
+
+Google Auth Platform must also be configured for broad access. While its publishing status is **Testing**, only explicitly listed test users can authorize. An external production app requesting `gmail.readonly` needs Google's restricted-scope verification; sending or storing restricted Gmail data on a server may require a security assessment. Deploying this access gate does not change Google's OAuth publishing status.
 
 ## Run
 
@@ -180,3 +192,14 @@ Protocol shows five user-facing categories. **Safe** means an exact approved sen
 - Service failures show Requires investigation with the failure reason, allow other messages to continue, and retry at most three times with backoff. An unreadable body or invalid model evidence produces an inconclusive result. Neither is treated as Safe.
 - Enable alert sounds once per page session using the sound button (browser audio permission requires interaction). The first Risky result from the initial batch sounds once; the visible count updates as the rest finish. Each subsequently arriving Risky email sounds once. Alert history is committed before sound playback and is encrypted alongside results. Alerts encountered while muted are not replayed later. Up to 1,000 previously alerted IDs are retained to prevent replay without retaining old email content.
 - Labels appear inside Protocol only; Gmail messages and labels are not modified. The API scope remains `gmail.readonly`.
+
+## Deployment monitoring
+
+Set `DEPLOYMENT_URL` to your Deployment server and `PROTOCOL_DEPLOYMENT_SECRET` to the same server-held secret configured in Deployment, then restart. Create and invite each employee in Deployment before they sign in; the administrator account is eligible too. Protocol uses the Google-verified email as the only matching field: the user does not enter a separate Protocol password. The email must exactly match the active account's work email. Protocol displays the company-link status and sends a heartbeat every 30 seconds while signed in.
+
+New suspicious/high-risk analyses send metadata alerts to the company admin: employee identity, risk level, detection time, and an HMAC message identifier. Email subjects, sender addresses, body text, attachments, explanations and Google tokens are not shared with Deployment. Previously cached analyses are not automatically backfilled.
+
+Failed alerts persist in `.sentri/monitoring-outbox.enc`, encrypted using AES-256-GCM, and retry on subsequent heartbeats. Keep this directory private, outside version control, and preserve the service secret until the queue drains. Use one Protocol process per data directory. This monitoring does not modify Gmail and runs while Protocol is open and connected.
+## OAuth client-not-found recovery (2026-10-03)
+
+A Google `401 invalid_client` saying the client was not found requires checking the actual Google Web application client ID in Coolify. Credential whitespace is trimmed; incomplete IDs are rejected before OAuth starts. This validation cannot prove that a client exists at Google. Preserve origin, state/PKCE, mailbox and company-account checks. See [the complete setup and redeployment checklist](../docs/RECOVERY-2026-10-03.md).

@@ -4,11 +4,12 @@
   "private": true,
   "packageManager": "pnpm@11.7.0",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --webpack",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
     "db:seed": "node --env-file=.env.local scripts/seed.mjs",
+    "db:repair-skills": "node scripts/repair-skill-schema.cjs",
     "db:email-course": "node --env-file=.env.local scripts/email-course-setup.cjs --apply",
     "review:ai": "node --env-file=.env.local scripts/review-ai-case.mjs",
     "test": "node --test tests/*.test.cjs"
